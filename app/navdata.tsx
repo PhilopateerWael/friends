@@ -1,10 +1,8 @@
-import { Home, Search, PlusSquare, Heart, User } from "lucide-react"
+import { Home, Search, User, MessageCircle } from "lucide-react"
 
 const navItems = [
     { href: "/", icon: Home },
-    { href: "/explore", icon: Search },
-    { href: "/create", icon: PlusSquare },
-    { href: "/notifications", icon: Heart },
+    { href: "/messages", icon: MessageCircle },
     { href: "/profile", icon: User },
 ]
 

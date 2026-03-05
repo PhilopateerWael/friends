@@ -8,7 +8,7 @@ import { ValidatedActionWithAuth } from "../util/Middleware"
 import { processMedia } from "../util/Cloudinary"
 
 export async function createmessageAction(content: string, media: File[], recipientId: string, isChat: boolean) {
-    ValidatedActionWithAuth(messageSchema, { content, media, recipientId, isChat }, createmessage);
+    return await ValidatedActionWithAuth(messageSchema, { content, media, recipientId, isChat }, createmessage);
 }
 
 async function createmessage(user: User, args: z.infer<typeof messageSchema>) {

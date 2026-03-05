@@ -8,7 +8,7 @@ import { ValidatedActionWithAuth } from "../util/Middleware"
 import { processMedia } from "../util/Cloudinary"
 
 export async function createCommentAction(content: string, postId: string, media?: File, parentId?: string) {
-    ValidatedActionWithAuth(commentSchema, { content, media, postId, parentId }, createComment);
+    return await ValidatedActionWithAuth(commentSchema, { content, media, postId, parentId }, createComment);
 }
 
 export async function deleteCommentAction(commentId: string) {

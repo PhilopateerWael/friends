@@ -27,7 +27,7 @@ const fileSchema = z
     .refine((file) => file.type.startsWith("image/") || file.type.startsWith("video/"), "Must be an image or video");
 
 export const postSchema = z.object({
-    content: z.string().min(1).max(1000),
+    content: z.string().max(1000),
     media: z.array(fileSchema),
 });
 

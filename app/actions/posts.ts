@@ -8,7 +8,7 @@ import { AuthenticatedAction, ValidatedActionWithAuth } from "../util/Middleware
 import { processMedia } from "../util/Cloudinary"
 
 export async function createPostAction(content: string, media: File[]) {
-    ValidatedActionWithAuth(postSchema, { content, media }, createPost);
+    return await ValidatedActionWithAuth(postSchema, { content, media }, createPost);
 }
 
 export async function deletePostAction(postId: string) {
@@ -40,13 +40,24 @@ async function createPost(user: User, args: z.infer<typeof postSchema>) {
                 content: args.content,
                 authorId: user.id,
                 media: uploadedMedia ? { create: uploadedMedia } : undefined
-            },
+            }, select: {
+                id: true,
+                content: true,
+                createdAt: true,
+                author: true,
+                media: true,
+                likes: true,
+                comments: true
+            }
         });
 
-        return post;
+        return { success: true, post };
     } catch (error) {
         console.error("Create post failed:", error);
-        throw new Error("Failed to create post");
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Failed to create post"
+        };
     }
 }
 
@@ -129,28 +140,10 @@ async function getFeed(user: User) {
             id: true,
             content: true,
             createdAt: true,
-
-            author: {
-                select: {
-                    id: true,
-                    username: true,
-                    image: true
-                }
-            },
-
-            media: {
-                select: {
-                    url: true,
-                    type: true
-                }
-            },
-
-            _count: {
-                select: {
-                    likes: true,
-                    comments: true
-                }
-            }
+            author: true,
+            media: true,
+            likes: true,
+            comments: true
         },
 
         orderBy: {

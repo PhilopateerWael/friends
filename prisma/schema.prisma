@@ -27,7 +27,7 @@ model User {
   name          String
   email         String
   emailVerified Boolean  @default(false)
-  image         String?
+  image         String   @default("https://res.cloudinary.com/dhaygzwic/image/upload/v1759150104/ulq46oehf0iizem11bkr.png")
   bio           String?
   username      String?  @unique
   privacy       Privacy  @default(PUBLIC)
@@ -148,9 +148,9 @@ model Message {
   chatId    String
   senderId  String
 
-  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  media Media[]
+  chat   Chat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender User    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  media  Media[]
 
   @@index([chatId])
   @@index([senderId])

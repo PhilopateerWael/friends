@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useReducer, Dispatch } from "react";
+import { createContext, useReducer, Dispatch, useContext } from "react";
 import { User } from "./generated/prisma/client";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -44,4 +44,14 @@ export default function Providers({
             {children}
         </AppContext.Provider>
     );
+}
+
+export function useAppContext() {
+    const context = useContext(AppContext);
+    
+    if (!context) {
+        throw new Error("useAppContext must be used within an AppProvider");
+    }
+
+    return context;
 }
