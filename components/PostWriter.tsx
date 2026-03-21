@@ -39,17 +39,33 @@ export default function PostWriter() {
 
     const handleSubmit = async () => {
         setLoading(true);
+        
+        const MAX_TOTAL = 10 * 1024 * 1024;
 
-        const response = await createPostAction(text, media.map(m => m.file));
-        console.log(response)
-        if (response.success) {
-            setText("");
-            setMedia([]);
-            toast.success("Post created successfully!");
-        } else {
-            toast.error("Failed to create post: " + response.error);
+        const totalSize = media.reduce((acc, m) => acc + m.file.size, 0);
+
+        if (totalSize > MAX_TOTAL) {
+            toast.error("Media is too large. Maximum upload is 10MB.");
+            setLoading(false);
+            return;
         }
-        setLoading(false);
+
+        try {
+            const response = await createPostAction(text, media.map(m => m.file));
+
+            if (response.success) {
+                setText("");
+                setMedia([]);
+                toast.success("Post created successfully!");
+            } else {
+                toast.error("Failed to create post: " + response.error);
+            }
+            setLoading(false);
+        } catch (error) {
+            toast.error("An error occurred while creating the post.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

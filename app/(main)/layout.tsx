@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import PcSidebar from "@/components/PcSidebar"
 import MobileNavbar from "@/components/MobileNavbar"
+import Providers from "../Providers"
 
 export const metadata: Metadata = {
     title: "Create Next App",
@@ -15,15 +16,15 @@ export default function RootLayout({
 
     return (
         <div className="flex min-h-screen">
+            <Providers>
+                <PcSidebar />
 
-            <PcSidebar />
+                <main className="flex-1 pb-16 md:pb-0">
+                    {children}
+                </main>
 
-            <main className="flex-1 pb-16 md:pb-0">
-                {children}
-            </main>
-
-            <MobileNavbar />
-
+                <MobileNavbar />
+            </Providers>
         </div>
     )
 }

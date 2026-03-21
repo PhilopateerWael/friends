@@ -25,16 +25,7 @@ export async function ValidatedActionWithAuth<T extends z.ZodTypeAny>(schema: T,
         throw new Error("Invalid input")
     }
 
-    const userHeaders = await headers();
-    const session = await auth.api.getSession({ headers: userHeaders })
-
-    if (!session?.user) {
-        redirect("/login")
-    }
-
-    const user = await prisma.user.findUnique({
-        where: { id: session.user.id }
-    });
+    const user = await getUser();
 
     if (!user) {
         redirect("/login");
@@ -44,20 +35,44 @@ export async function ValidatedActionWithAuth<T extends z.ZodTypeAny>(schema: T,
 }
 
 export async function AuthenticatedAction(action: (user: User) => Promise<any>) {
-    const userHeaders = await headers();
-    const session = await auth.api.getSession({ headers: userHeaders })
-
-    if (!session?.user) {
-        redirect("/login")
-    }
-
-    const user = await prisma.user.findUnique({
-        where: { id: session.user.id }
-    });
+    const user = await getUser();
 
     if (!user) {
         redirect("/login");
     }
 
     return await action(user);
+}
+
+export async function getUser(): Promise<User | null> {
+    try {
+        const session = await auth.api.getSession({ headers: await headers() })
+
+        if (!session?.user) return null;
+
+        const user = await prisma.user.findUnique({
+            where: {
+                id: session?.user.id
+            },include :{
+                posts: true,
+                participant:{
+                    include :{
+                        chat : {
+                            include : {
+                                participants:{
+                                    include :{
+                                        user : true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        return user;
+    } catch {
+        return null;
+    }
 }

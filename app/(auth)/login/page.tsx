@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -25,15 +24,9 @@ import { Input } from "@/components/ui/input"
 import { signInSchema } from "@/lib/requestSchemas"
 import Link from "next/link";
 import { signInAction } from "../../actions/auth"
-import { AppContext } from "../../Providers"
-import { redirect } from "next/navigation"
 import { Spinner } from "@/components/ui/spinner"
 
 export default function page() {
-    const { state, dispatch } = React.useContext(AppContext);
-
-    if (state.user) redirect("/")
-
     const { formState: { isSubmitting }, ...form } = useForm<z.infer<typeof signInSchema>>({
         resolver: zodResolver(signInSchema),
         defaultValues: {
@@ -48,7 +41,7 @@ export default function page() {
         if (!result.success) {
             toast.error(result?.message || "Failed to sign in");
         } else {
-            location.reload();
+            window.location.href = "/";
         }
     }
 

@@ -1,6 +1,6 @@
 "use server"
 
-import { messageSchema } from "@/lib/requestSchemas"
+import { messageSchema, targetSchema } from "@/lib/requestSchemas"
 import { MediaType, User } from "../generated/prisma/client"
 import z from "zod"
 import prisma from "@/lib/prisma"

@@ -25,14 +25,12 @@ import { signUpSchema } from "@/lib/requestSchemas"
 import Link from "next/link";
 import { signUpAction } from "../../actions/auth"
 import { AppContext } from "../../Providers"
-import { redirect } from "next/navigation"
 import { useContext } from "react"
 import { Spinner } from "@/components/ui/spinner"
 
 export default function page() {
     const { state, dispatch } = useContext(AppContext);
 
-    if (state.user) redirect("/")
 
     const { formState: { isSubmitting }, ...form } = useForm<z.infer<typeof signUpSchema>>({
         resolver: zodResolver(signUpSchema),
@@ -45,11 +43,11 @@ export default function page() {
 
     async function onSubmit(data: z.infer<typeof signUpSchema>) {
         const result = await signUpAction(data.email, data.password, data.username);
-
+        console.log(result);
         if (!result.success) {
             toast.error(result?.message || "Failed to create account");
         } else {
-            location.reload()
+            window.location.href = "/";
         }
     }
 

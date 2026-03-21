@@ -3,11 +3,12 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { ValidatedAction } from "../util/Middleware";
+import { AuthenticatedAction, getUser, ValidatedAction } from "../util/Middleware";
 import { signInSchema, signUpSchema } from "@/lib/requestSchemas";
 import z from "zod";
 import { User } from "../generated/prisma/client";
-import prisma from "@/lib/prisma";
+import ably from "@/lib/ably";
+import { TokenDetails } from "ably";
 
 export async function signUpAction(email: string, password: string, name: string) {
     return await ValidatedAction(signUpSchema, { email, password, username: name }, signUp);
@@ -22,21 +23,37 @@ export async function signOutAction() {
         headers: await headers()
     });
 
-    redirect("/")
+    redirect("/login")
 }
 
-export async function getMeAction(): Promise<User | null> {
-    const session = await auth.api.getSession({ headers: await headers() })
+export async function getMeAction(): Promise<{ user: User; token: TokenDetails } | { user: null; token: null }> {
+    return await AuthenticatedAction(getMe);
+}
 
-    if (!session?.user) return null;
+export async function getAblyTokenAction(): Promise<TokenDetails> {
+    return await AuthenticatedAction(getAblyToken);
+}
 
-    const user = await prisma.user.findUnique({
-        where: {
-            id: session?.user.id
+async function getMe(user: User): Promise<{ user: User; token: TokenDetails } | { user: null; token: null }> {
+    const token = await ably.auth.requestToken({
+        clientId: user.id,
+        capability: {
+            [`user-${user.id}`]: ["subscribe"]
         }
-    });
+    })
 
-    return user;
+    return { user, token };
+}
+
+async function getAblyToken(user: User): Promise<TokenDetails> {
+    const token = await ably.auth.requestToken({
+        clientId: user.id,
+        capability: {
+            [`user-${user.id}`]: ["subscribe"]
+        }
+    })
+
+    return token;
 }
 
 async function signIn(args: z.infer<typeof signInSchema>) {

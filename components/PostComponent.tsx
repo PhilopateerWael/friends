@@ -1,7 +1,6 @@
 "use client";
 
-import * as React from "react";
-import { Heart, MessageCircle } from "lucide-react";
+import { Heart } from "lucide-react";
 import { likePostAction, unlikePostAction } from "@/app/actions/posts";
 import {
     Card,
@@ -12,42 +11,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { formatDistanceToNow } from "date-fns";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
-type PostType = {
-    id: string;
-    content: string;
-    createdAt: Date;
-    author: {
-        id: string;
-        name: string;
-        username?: string | null;
-        image: string;
-    };
-    media: {
-        id: string;
-        url: string;
-        type: "IMAGE" | "VIDEO";
-    }[];
-    likes: {
-        userId: string;
-    }[];
-    comments: {
-        id: string;
-    }[];
-};
+import { useState } from "react";
+import { Media, Post, User } from "@/app/generated/prisma/client";
+import MediaGrid from "./MediaGrid";
+import CommentSection from "./CommentSection";
 
 type Props = {
-    post: PostType;
-    currentUserId: string;
+    post: Post & { media: Media[] } & { comments: Comment[] } & { likes: { user: User }[] } & { author: User };
+    user: User;
 };
 
-export default function PostComponent({ post, currentUserId }: Props) {
-    const [likes, setLikes] = React.useState(post.likes);
-    const [isLiking, setIsLiking] = React.useState(false);
-
-    const isLiked = likes.some((l) => l.userId === currentUserId);
+export default function PostComponent({ post, user }: Props) {
+    const [likes, setLikes] = useState(post.likes);
+    const [isLiking, setIsLiking] = useState(false);
+    const isLiked = likes.some((l) => l.user.id === user.id);
 
     async function handleLike() {
         if (isLiking) return;
@@ -57,10 +34,10 @@ export default function PostComponent({ post, currentUserId }: Props) {
         try {
             if (isLiked) {
                 await unlikePostAction(post.id);
-                setLikes((prev) => prev.filter((l) => l.userId !== currentUserId));
+                setLikes((prev) => prev.filter((l) => l.user.id !== user.id));
             } else {
                 await likePostAction(post.id);
-                setLikes((prev) => [...prev, { userId: currentUserId }]);
+                setLikes((prev) => [...prev, { user: user }]);
             }
         } catch (error) {
             console.error(error);
@@ -97,7 +74,7 @@ export default function PostComponent({ post, currentUserId }: Props) {
                 )}
 
                 {post.media.length > 0 && (
-                    <PostMediaGrid media={post.media} />
+                    <MediaGrid media={post.media} />
                 )}
             </CardContent>
 
@@ -122,151 +99,11 @@ export default function PostComponent({ post, currentUserId }: Props) {
                         )}
                         <span className="text-sm">{likes.length}</span>
                     </Button>
-
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="flex items-center gap-2 text-muted-foreground"
-                    >
-                        <MessageCircle className="w-5 h-5" />
-                        <span className="text-sm">
-                            {post.comments.length}
-                        </span>
-                    </Button>
+                    <CommentSection
+                        postId={post.id}
+                    />
                 </div>
             </CardFooter>
         </Card>
-    );
-}
-
-type Media = {
-    id: string;
-    url: string;
-    type: "IMAGE" | "VIDEO";
-};
-
-function PostMediaGrid({ media }: { media: Media[] }) {
-    const [open, setOpen] = React.useState(false);
-    const [index, setIndex] = React.useState(0);
-
-
-    function openViewer(i: number) {
-        setIndex(i);
-        setOpen(true);
-    }
-
-    function next() {
-        setIndex((prev) => (prev + 1) % media.length);
-    }
-
-    function prev() {
-        setIndex((prev) => (prev - 1 + media.length) % media.length);
-    }
-
-    React.useEffect(() => {
-        if (open) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "";
-        }
-
-        return () => {
-            document.body.style.overflow = "";
-        };
-    }, [open]);
-
-    return (
-        <>
-            <div className="flex gap-2 rounded-lg overflow-hidden h-[400px] max-sm:h-[200px]">
-                {media.map((m, i) => {
-                    if (i > 1) return null;
-                    return (
-                        <div
-                            key={m.id}
-                            className="relative cursor-pointer flex-1"
-                            onClick={() => openViewer(i)}
-                        >
-                            {m.type === "IMAGE" ? (
-                                <img
-                                    src={m.url}
-                                    className="w-full h-full object-contain bg-black/60"
-                                    alt=""
-                                />
-                            ) : (
-                                <video
-                                    src={m.url}
-                                    className="w-full h-full object-contain bg-black/60"
-                                />
-                            )}
-
-                            {i == 1 && media.length > 2 && (
-                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-2xl font-semibold">
-                                    +{media.length - 2}
-                                </div>
-                            )}
-                        </div>
-                    )
-
-                }
-                )}
-            </div>
-
-            {open && (
-                <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center">
-
-                    {/* Backdrop click closes */}
-                    <div
-                        className="absolute inset-0"
-                        onClick={() => setOpen(false)}
-                    />
-
-                    {/* Content */}
-                    <div className="relative w-full h-full flex items-center justify-center gap-2 p-4">
-
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setOpen(false)}
-                            className="absolute top-4 right-4 text-white text-lg z-50"
-                        >
-                            ✕
-                        </button>
-
-                        {/* Left Arrow */}
-                        <button
-                            onClick={prev}
-                            className="text-white bg-black/50 p-3 rounded-full z-50"
-                        >
-                            <ChevronLeft />
-                        </button>
-
-                        {/* Media */}
-                        <div className="flex-1 flex justify-center items-center">
-                            {media[index].type === "IMAGE" ? (
-                                <img
-                                    src={media[index].url}
-                                    className="object-contain"
-                                    alt=""
-                                />
-                            ) : (
-                                <video
-                                    src={media[index].url}
-                                    controls
-                                    autoPlay
-                                    className="object-contain"
-                                />
-                            )}
-                        </div>
-
-                        {/* Right Arrow */}
-                        <button
-                            onClick={next}
-                            className="text-white bg-black/50 p-3 rounded-full z-50"
-                        >
-                            <ChevronRight />
-                        </button>
-                    </div>
-                </div>
-            )}
-        </>
     );
 }

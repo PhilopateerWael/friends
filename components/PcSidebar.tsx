@@ -26,7 +26,7 @@ export default function PcSidebar() {
                     >
                         <Link href={item.href}>
                             {item.href == "/profile" ? (
-                                <img src={state?.user?.image || ""} alt="Profile" className="h-6 w-6 rounded-md" />
+                                <img src={state?.user?.image || undefined} alt="Profile" className="h-6 w-6 rounded-md" />
                             ) : (
                                 <item.icon className="h-6 w-6" />
                             )}

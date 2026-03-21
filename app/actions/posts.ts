@@ -142,8 +142,11 @@ async function getFeed(user: User) {
             createdAt: true,
             author: true,
             media: true,
-            likes: true,
-            comments: true
+            likes: {
+                select: {
+                    user: true
+                }
+            },
         },
 
         orderBy: {
