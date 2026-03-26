@@ -37,9 +37,7 @@ export const targetSchema = z.object({
 
 export const commentSchema = z.object({
     content: z.string().min(1).max(1000),
-    media: fileSchema.optional(),
     postId: z.string(),
-    parentId: z.string().optional(),
 });
 
 export const messageSchema = postSchema.extend({

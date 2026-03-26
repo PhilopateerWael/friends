@@ -5,9 +5,11 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import navItems from "@/app/navdata"
+import { useAppContext } from "@/app/Providers"
 
 export default function MobileNavbar() {
     const pathname = usePathname()
+    const { state } = useAppContext()
     
     return (
         <div className="flex min-h-screen">
@@ -22,8 +24,12 @@ export default function MobileNavbar() {
                             pathname === item.href && "text-primary"
                         )}
                     >
-                        <Link href={item.href}>
-                            <item.icon className="h-6 w-6" />
+                        <Link href={item.href == "/profile" ? `/user/${state?.user?.id}` : item.href}>
+                            {item.href == "/profile" ? (
+                                <img src={state?.user?.image || undefined} alt="Profile" className="h-6 w-6 rounded-md" />
+                            ) : (
+                                <item.icon className="h-6 w-6" />
+                            )}
                         </Link>
                     </Button>
                 ))}

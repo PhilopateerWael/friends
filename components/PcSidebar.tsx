@@ -24,7 +24,7 @@ export default function PcSidebar() {
                             pathname === item.href && "bg-muted"
                         )}
                     >
-                        <Link href={item.href}>
+                        <Link href={item.href == "/profile" ? `/user/${state?.user?.id}` : item.href}>
                             {item.href == "/profile" ? (
                                 <img src={state?.user?.image || undefined} alt="Profile" className="h-6 w-6 rounded-md" />
                             ) : (

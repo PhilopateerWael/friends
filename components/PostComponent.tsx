@@ -15,6 +15,7 @@ import { useState } from "react";
 import { Media, Post, User } from "@/app/generated/prisma/client";
 import MediaGrid from "./MediaGrid";
 import CommentSection from "./CommentSection";
+import { redirect } from "next/navigation";
 
 type Props = {
     post: Post & { media: Media[] } & { comments: Comment[] } & { likes: { user: User }[] } & { author: User };
@@ -48,7 +49,7 @@ export default function PostComponent({ post, user }: Props) {
 
     return (
         <Card className="w-full max-w-2xl mx-auto">
-            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+            <CardHeader className="flex flex-row items-center gap-3 space-y-0 cursor-pointer" onClick={() => redirect(`/user/${post.author.id}`)}>
                 <img
                     src={post.author.image}
                     className="w-10 h-10 rounded-full object-cover"

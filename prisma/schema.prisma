@@ -119,8 +119,6 @@ model Post {
 
 model Chat {
   id        String   @id @default(cuid())
-  isGroup   Boolean  @default(false)
-  groupName String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -208,8 +206,6 @@ model Comment {
   post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  media Media?
-
   @@index([postId])
   @@index([authorId])
   @@index([parentId])
@@ -220,12 +216,10 @@ model Media {
   url       String
   type      MediaType
   postId    String?
-  commentId String?   @unique
   messageId String?
 
   createdAt DateTime @default(now())
 
   post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
-  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
   message Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)
 }

@@ -9,6 +9,7 @@ import z from "zod";
 import { User } from "../generated/prisma/client";
 import ably from "@/lib/ably";
 import { TokenDetails } from "ably";
+import prisma from "@/lib/prisma";
 
 export async function signUpAction(email: string, password: string, name: string) {
     return await ValidatedAction(signUpSchema, { email, password, username: name }, signUp);
@@ -26,7 +27,7 @@ export async function signOutAction() {
     redirect("/login")
 }
 
-export async function getMeAction(): Promise<{ user: User; token: TokenDetails } | { user: null; token: null }> {
+export async function getMeAction() {
     return await AuthenticatedAction(getMe);
 }
 
@@ -34,7 +35,18 @@ export async function getAblyTokenAction(): Promise<TokenDetails> {
     return await AuthenticatedAction(getAblyToken);
 }
 
-async function getMe(user: User): Promise<{ user: User; token: TokenDetails } | { user: null; token: null }> {
+async function getMe(user: User): Promise<any> {
+    const userPopulated = await prisma.user.findUnique({
+        where: {
+            id: user.id
+        },
+        include: {
+            followers: { include: { follower: true } },
+            blocks: { include: { blocked: true } },
+            following: { include: { following: true } },
+        }
+    });
+
     const token = await ably.auth.requestToken({
         clientId: user.id,
         capability: {
@@ -42,7 +54,7 @@ async function getMe(user: User): Promise<{ user: User; token: TokenDetails } | 
         }
     })
 
-    return { user, token };
+    return { user: userPopulated, token };
 }
 
 async function getAblyToken(user: User): Promise<TokenDetails> {

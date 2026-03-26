@@ -2,20 +2,113 @@
 
 import * as Ably from "ably";
 import { createContext, useReducer, Dispatch, useContext, useEffect, useState } from "react";
-import { User } from "./generated/prisma/client";
+import { Block, Follow, User } from "./generated/prisma/client";
 import { getMeAction, getAblyTokenAction } from "./actions/auth";
 
-type State = {
-    user: User | null;
-    token: any | null;
+export type UserWithRelations = User & {
+    followers: (Follow & { follower: User })[];
+    following: Follow[];
+    blocks: Block[];
 };
 
-type Action = { type: "setUser"; payload: User | null };
+type State = {
+    user: UserWithRelations | null;
+};
+
+type Action =
+    | { type: "setUser"; payload: UserWithRelations | null }
+    | { type: "addFollow"; payload: any }
+    | { type: "removeFollow"; payload: string }
+    | { type: "addBlock"; payload: any }
+    | { type: "removeBlock"; payload: string }
+    | {
+        type: "updateProfile";
+        payload: {
+            name?: string;
+            bio?: string;
+            privacy?: any;
+        }
+    }
+    | { type: "updateFollowers"; payload: any }
+    | { type: "updateFollowings"; payload: any }
 
 function reducer(state: State, action: Action): State {
     switch (action.type) {
         case "setUser":
             return { ...state, user: action.payload };
+
+        case "addFollow":
+            if (!state.user) return state;
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    following: [...state.user.following, action.payload],
+                },
+            };
+
+        case "removeFollow":
+            if (!state.user) return state;
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    following: state.user.following.filter(
+                        (f: any) => f.followingId !== action.payload
+                    ),
+                },
+            };
+
+        case "addBlock":
+            if (!state.user) return state;
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    blocks: [...state.user.blocks, action.payload],
+                },
+            };
+
+        case "removeBlock":
+            if (!state.user) return state;
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    blocks: state.user.blocks.filter(
+                        (b: any) => b.blockedId !== action.payload
+                    ),
+                },
+            };
+        case "updateFollowers":
+            if (!state.user) return state;
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    followers: action.payload,
+                },
+            };
+        case "updateFollowings":
+            if (!state.user) return state;
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    following: action.payload,
+                },
+            };
+
+        case "updateProfile":
+            if (!state.user) return state;
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    ...action.payload,
+                },
+            };
+
         default:
             return state;
     }
@@ -25,12 +118,12 @@ export const AppContext = createContext<{
     state: State;
     dispatch: Dispatch<Action>;
 }>({
-    state: { user: null, token: null },
+    state: { user: null },
     dispatch: () => null,
 });
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-    const [state, dispatch] = useReducer(reducer, { user: null, token: null });
+    const [state, dispatch] = useReducer(reducer, { user: null });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

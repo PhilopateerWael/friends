@@ -6,6 +6,7 @@ import z from "zod"
 import prisma from "@/lib/prisma"
 import { AuthenticatedAction, ValidatedActionWithAuth } from "../util/Middleware"
 import { processMedia } from "../util/Cloudinary"
+import { canAccessPost, postConfig } from "./helpers"
 
 export async function createPostAction(content: string, media: File[]) {
     return await ValidatedActionWithAuth(postSchema, { content, media }, createPost);
@@ -71,6 +72,14 @@ async function deletePost(user: User, args: z.infer<typeof targetSchema>) {
 }
 
 async function likePost(user: User, args: z.infer<typeof targetSchema>) {
+    const post = await prisma.post.findFirst({
+        where : {...canAccessPost(user) , id: args.targetId}
+    });
+
+    if (!post) {
+        throw new Error("Post not found or access denied");
+    }
+
     await prisma.like.create({
         data: {
             postId: args.targetId,
@@ -80,6 +89,14 @@ async function likePost(user: User, args: z.infer<typeof targetSchema>) {
 }
 
 async function unlikePost(user: User, args: z.infer<typeof targetSchema>) {
+    const post = await prisma.post.findFirst({
+        where : {...canAccessPost(user) , id: args.targetId}
+    });
+
+    if (!post) {
+        throw new Error("Post not found or access denied");
+    }
+    
     await prisma.like.delete({
         where: {
             userId_postId: {
@@ -91,66 +108,5 @@ async function unlikePost(user: User, args: z.infer<typeof targetSchema>) {
 }
 
 async function getFeed(user: User) {
-    const myId = user.id
-
-    return await prisma.post.findMany({
-        where: {
-            AND: [
-                {
-                    author: {
-                        blocks: {
-                            none: {
-                                blockedId: myId
-                            }
-                        }
-                    }
-                },
-                {
-                    author: {
-                        blockedBy: {
-                            none: {
-                                userId: myId
-                            }
-                        }
-                    }
-                },
-                {
-                    OR: [
-                        {
-                            author: {
-                                privacy: Privacy.PUBLIC
-                            }
-                        },
-                        {
-                            author: {
-                                privacy: Privacy.PRIVATE,
-                                followers: {
-                                    some: {
-                                        followerId: myId,
-                                        status: FollowStatus.ACCEPTED
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        select: {
-            id: true,
-            content: true,
-            createdAt: true,
-            author: true,
-            media: true,
-            likes: {
-                select: {
-                    user: true
-                }
-            },
-        },
-
-        orderBy: {
-            createdAt: "desc"
-        }
-    })
+    return await prisma.post.findMany(postConfig(user))
 }

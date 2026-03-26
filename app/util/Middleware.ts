@@ -8,7 +8,7 @@ import { User } from "../generated/prisma/client";
 import prisma from "@/lib/prisma";
 
 
-export async function ValidatedAction<T extends z.ZodTypeAny>(schema: T, input: z.infer<T>, action: (args: z.infer<T>) => Promise<any>) {
+export async function ValidatedAction<T extends z.ZodTypeAny, R>(schema: T, input: z.infer<T>, action: (args: z.infer<T>) => Promise<R>): Promise<R> {
     const parsed = schema.safeParse(input);
 
     if (!parsed.success) {
@@ -18,11 +18,11 @@ export async function ValidatedAction<T extends z.ZodTypeAny>(schema: T, input: 
     return await action(parsed.data)
 }
 
-export async function ValidatedActionWithAuth<T extends z.ZodTypeAny>(schema: T, input: z.infer<T>, action: (user: User, args: z.infer<T>) => Promise<any>) {
+export async function ValidatedActionWithAuth<T extends z.ZodTypeAny, R>(schema: T, input: z.infer<T>, action: (user: User, args: z.infer<T>) => Promise<R>): Promise<R> {
     const parsed = schema.safeParse(input);
 
     if (!parsed.success) {
-        throw new Error("Invalid input")
+        throw new Error("Invalid input");
     }
 
     const user = await getUser();
@@ -34,7 +34,7 @@ export async function ValidatedActionWithAuth<T extends z.ZodTypeAny>(schema: T,
     return await action(user, parsed.data);
 }
 
-export async function AuthenticatedAction(action: (user: User) => Promise<any>) {
+export async function AuthenticatedAction<R>(action: (user: User) => Promise<R>) : Promise<R> {
     const user = await getUser();
 
     if (!user) {
@@ -53,22 +53,7 @@ export async function getUser(): Promise<User | null> {
         const user = await prisma.user.findUnique({
             where: {
                 id: session?.user.id
-            },include :{
-                posts: true,
-                participant:{
-                    include :{
-                        chat : {
-                            include : {
-                                participants:{
-                                    include :{
-                                        user : true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            }, 
         });
 
         return user;

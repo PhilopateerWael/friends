@@ -7,11 +7,13 @@ import { MessageCircle } from "lucide-react"
 import { Comment } from "@/app/generated/prisma/client"
 import { formatDistanceToNow } from "date-fns"
 import { ScrollArea } from "./ui/scroll-area"
+import { toast } from "sonner"
+import { redirect } from "next/navigation"
 
 export default function CommentSection({
     postId,
 }: any) {
-    const [comments, setComments] = useState<Comment[]>([])
+    const [comments, setComments] = useState<any[]>([])
     const [text, setText] = useState("")
     const [loading, setLoading] = useState(false)
 
@@ -21,7 +23,7 @@ export default function CommentSection({
                 const result = await getCommentsForPostAction(postId);
                 setComments(result);
             } catch {
-
+                toast.error("Failed to load comments")
             }
         }
 
@@ -105,14 +107,15 @@ export function CommentItem({ comment }: any) {
         <div className="flex gap-3">
 
             <img
+                onClick={() => redirect("/user/" + comment.author.id)}
                 src={comment.author.image}
-                className="w-8 h-8 rounded-full object-cover"
+                className="w-8 h-8 rounded-full object-cover cursor-pointer"
             />
 
             <div className="flex flex-col gap-1">
 
                 <div className="bg-muted px-3 py-2 rounded-lg text-sm">
-                    <span className="font-semibold mr-2">
+                    <span className="font-semibold mr-2 cursor-pointer" onClick={() => redirect("/user/" + comment.author.id)}>
                         {comment.author.name}
                     </span>
 
