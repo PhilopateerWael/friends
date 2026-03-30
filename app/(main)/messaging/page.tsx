@@ -1,9 +1,11 @@
-import React from 'react'
+"use client";
 
-const page = () => {
+import ChatList from "@/components/Chats";
+
+export default function Page() {
     return (
-        <div>page</div>
-    )
+        <div className="bg-background">
+            <ChatList />
+        </div>
+    );
 }
-
-export default page

@@ -44,6 +44,17 @@ async function getMe(user: User): Promise<any> {
             followers: { include: { follower: true } },
             blocks: { include: { blocked: true } },
             following: { include: { following: true } },
+            participant: {
+                include: {
+                    chat: {
+                        include: {
+                            participants: {
+                                include: { user: true }
+                            }
+                        }
+                    }
+                }
+            }
         }
     });
 

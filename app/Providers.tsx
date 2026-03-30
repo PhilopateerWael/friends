@@ -9,6 +9,12 @@ export type UserWithRelations = User & {
     followers: (Follow & { follower: User })[];
     following: Follow[];
     blocks: Block[];
+    participant: {
+        chat: {
+            participants: User[],
+            id: string,
+        }
+    }[];
 };
 
 type State = {
@@ -31,6 +37,7 @@ type Action =
     }
     | { type: "updateFollowers"; payload: any }
     | { type: "updateFollowings"; payload: any }
+    | { type: "addChat", payload: any };
 
 function reducer(state: State, action: Action): State {
     switch (action.type) {
@@ -106,6 +113,18 @@ function reducer(state: State, action: Action): State {
                 user: {
                     ...state.user,
                     ...action.payload,
+                },
+            };
+        case "addChat":
+            if (!state.user) return state;
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    participant: [
+                        ...state.user.participant,
+                        action.payload,
+                    ],
                 },
             };
 

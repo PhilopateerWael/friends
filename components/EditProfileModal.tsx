@@ -53,7 +53,6 @@ export default function EditProfileModal({
                         onChange={(e) => setBio(e.target.value)}
                     />
 
-                    {/* ✅ styled select */}
                     <select
                         className="w-full border rounded p-2 bg-muted text-muted-foreground"
                         value={privacy}

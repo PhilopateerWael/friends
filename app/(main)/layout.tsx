@@ -15,11 +15,11 @@ export default function RootLayout({
 }) {
 
     return (
-        <div className="flex min-h-screen">
+        <div className="flex">
             <Providers>
                 <PcSidebar />
 
-                <main className="flex-1 pb-16 md:pb-0">
+                <main className="flex-1 max-md:h-[calc(100vh-4rem)]">
                     {children}
                 </main>
 

@@ -41,6 +41,5 @@ export const commentSchema = z.object({
 });
 
 export const messageSchema = postSchema.extend({
-    recipientId: z.string(),
-    isChat: z.boolean(),
+    chatId: z.string(),
 });
