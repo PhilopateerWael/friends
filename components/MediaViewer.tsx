@@ -1,5 +1,5 @@
 import { Media } from '@/app/generated/prisma/client'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight , X } from 'lucide-react'
 import { useState } from 'react'
 
 const MediaViewer = ({ media, setOpen }: { media: Media[]; setOpen: (open: boolean) => void; }) => {
@@ -17,23 +17,23 @@ const MediaViewer = ({ media, setOpen }: { media: Media[]; setOpen: (open: boole
 
                 <button
                     onClick={() => setOpen(false)}
-                    className="absolute top-4 right-4 text-white text-lg z-50"
+                    className="absolute top-4 right-4 text-white bg-muted p-3 rounded-full z-50 cursor-pointer flex items-center justify-center"
                 >
-                    ✕
+                    <X size={20}/>
                 </button>
 
                 <button
                     onClick={() => setIndex((index - 1 + media.length) % media.length)}
-                    className="text-white bg-black/50 p-3 rounded-full z-50"
+                    className="text-white bg-muted p-3 rounded-full z-50 cursor-pointer"
                 >
                     <ChevronLeft />
                 </button>
 
-                <div className="flex-1 flex justify-center items-center">
+                <div className="flex-1 flex justify-center items-center overflow-hidden h-screen">
                     {media[index].type === "IMAGE" ? (
                         <img
                             src={media[index].url}
-                            className="object-contain"
+                            className="max-w-full max-h-full object-contain"
                             alt=""
                         />
                     ) : (
@@ -41,14 +41,14 @@ const MediaViewer = ({ media, setOpen }: { media: Media[]; setOpen: (open: boole
                             src={media[index].url}
                             controls
                             autoPlay
-                            className="object-contain"
+                            className="max-w-full max-h-full object-contain"
                         />
                     )}
                 </div>
 
                 <button
                     onClick={() => setIndex((index + 1) % media.length)}
-                    className="text-white bg-black/50 p-3 rounded-full z-50"
+                    className="text-white bg-muted p-3 rounded-full z-50 cursor-pointer"
                 >
                     <ChevronRight />
                 </button>

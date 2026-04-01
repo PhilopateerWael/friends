@@ -2,20 +2,21 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { Paperclip } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "./ui/spinner";
 import { createPostAction } from "@/app/actions/posts";
 import { toast } from "sonner";
+import MediaAttacher from "./MediaAttacher";
+import MediaPreviewList from "./MediaPreviewList";
 
 type MediaFile = {
     file: File;
     preview: string;
 };
 
-export default function PostWriter() {
+export default function PostWriter({ setFeed }: { setFeed: React.Dispatch<React.SetStateAction<any[]>> }) {
     const [text, setText] = useState("");
     const [media, setMedia] = useState<MediaFile[]>([]);
     const [loading, setLoading] = useState(false);
@@ -30,6 +31,7 @@ export default function PostWriter() {
                 preview: URL.createObjectURL(file),
             }));
 
+        e.target.value = "";
         setMedia(prev => [...prev, ...filesArray]);
     };
 
@@ -39,7 +41,7 @@ export default function PostWriter() {
 
     const handleSubmit = async () => {
         setLoading(true);
-        
+
         const MAX_TOTAL = 10 * 1024 * 1024;
 
         const totalSize = media.reduce((acc, m) => acc + m.file.size, 0);
@@ -57,6 +59,7 @@ export default function PostWriter() {
                 setText("");
                 setMedia([]);
                 toast.success("Post created successfully!");
+                setFeed((prev) => [response.post, ...prev]);
             } else {
                 toast.error("Failed to create post: " + response.error);
             }
@@ -83,33 +86,9 @@ export default function PostWriter() {
 
                 <div className="flex flex-col">
                     <div className="flex gap-2 flex-wrap">
-                        {media.map((m, idx) => (
-                            <div key={idx} className="relative">
-                                {m.file.type.startsWith("image/") ? (
-                                    <img src={m.preview} className="w-24 h-24 object-cover rounded" alt="preview" />
-                                ) : (
-                                    <video src={m.preview} className="w-24 h-24 object-cover rounded" controls />
-                                )}
-                                <button
-                                    onClick={() => handleRemoveMedia(idx)}
-                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-                                    type="button"
-                                >
-                                    ×
-                                </button>
-                            </div>
-                        ))}
+                        <MediaPreviewList media={media} onRemove={handleRemoveMedia} />
                     </div>
-                    <Button variant="secondary" className="mt-2 w-full relative cursor-pointer overflow-hidden">
-                        Attach Media <Paperclip />
-                        <input
-                            type="file"
-                            accept="image/*,video/*"
-                            multiple
-                            onChange={handleMediaChange}
-                            className="w-full h-full absolute top-0  cursor-pointer left-0 opacity-0"
-                        />
-                    </Button>
+                    <MediaAttacher handleMediaChange={handleMediaChange}>Attach Media</MediaAttacher>
                 </div>
             </CardContent>
             <CardFooter>

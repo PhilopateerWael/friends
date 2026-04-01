@@ -2,14 +2,25 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "@/app/Providers";
-import { createmessageAction, getMessagesForChatAction } from "@/app/actions/messages";
+import {
+    createmessageAction,
+    getMessagesForChatAction,
+} from "@/app/actions/messages";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
+import MediaAttacher from "./MediaAttacher";
+import Message from "./Message";
+import MediaPreviewList from "./MediaPreviewList";
+
+type MediaFile = {
+    file: File;
+    preview: string;
+};
 
 export default function ChatView({
     chat,
@@ -18,27 +29,66 @@ export default function ChatView({
     chat: any;
     onBack: () => void;
 }) {
-    const { state } = useAppContext();
+    const { state, dispatch } = useAppContext();
+    const messages = state.messages;
 
-    const [messages, setMessages] = useState<any[]>([]);
     const [text, setText] = useState("");
+    const [media, setMedia] = useState<MediaFile[]>([]);
     const [sending, setSending] = useState(false);
+
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
     const otherUser = chat.participants.find(
         (p: any) => p.userId !== state.user?.id
     )?.user;
 
+    const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files) return;
+
+        const filesArray = Array.from(e.target.files)
+            .filter(
+                (file) =>
+                    file.type.startsWith("image/") ||
+                    file.type.startsWith("video/")
+            )
+            .map((file) => ({
+                file,
+                preview: URL.createObjectURL(file),
+            }));
+
+        e.target.value = "";
+        setMedia((prev) => [...prev, ...filesArray]);
+    };
+
+    const handleRemoveMedia = (index: number) => {
+        setMedia((prev) => prev.filter((_, i) => i !== index));
+    };
+
     async function sendMessage() {
-        if (!text.trim()) return;
+        if (!text.trim() && media.length === 0) return;
 
         setSending(true);
 
-        try {
-            const message = await createmessageAction(text, [], chat.id);
+        const MAX_TOTAL = 10 * 1024 * 1024;
+        const totalSize = media.reduce((acc, m) => acc + m.file.size, 0);
 
-            setMessages((prev) => [...prev, message]);
+        if (totalSize > MAX_TOTAL) {
+            alert("Media too large (max 10MB)");
+            setSending(false);
+            return;
+        }
+
+        try {
+            const message = await createmessageAction(
+                text,
+                media.map((m) => m.file),
+                chat.id
+            );
+
+            dispatch({ type: "addMessage", payload: message });
+
             setText("");
+            setMedia([]);
         } catch (err) {
             console.error(err);
         } finally {
@@ -49,10 +99,15 @@ export default function ChatView({
     useEffect(() => {
         async function fetchMessages() {
             const messages = await getMessagesForChatAction(chat.id);
-            setMessages(messages);
+            dispatch({ type: "setMessages", payload: messages });
         }
-        fetchMessages()
-    }, []);
+
+        fetchMessages();
+
+        return () => {
+            dispatch({ type: "clearMessages" });
+        };
+    }, [chat.id]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -79,30 +134,37 @@ export default function ChatView({
                 <ScrollArea className="h-full px-3">
                     <div className="gap-2 flex flex-col">
                         {messages.map((msg, i) => (
-                            <div
+                            <Message
                                 key={i}
-                                className={`p-2 rounded-lg w-fit max-w-[70%] ${msg.senderId === state.user?.id
-                                    ? "ml-auto bg-primary text-black"
-                                    : "bg-muted"
-                                    }`}
-                            >
-                                {msg.content}
-                            </div>
+                                msg={msg}
+                                isOwn={msg.senderId === state.user?.id}
+                            />
                         ))}
                         <div ref={bottomRef} />
                     </div>
                 </ScrollArea>
             </div>
 
-            <div className="flex gap-2">
-                <Input
-                    placeholder="Type a message..."
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                />
-                <Button onClick={sendMessage} disabled={sending}>
-                    Send
-                </Button>
+            <div className="flex flex-col gap-2">
+                <MediaPreviewList media={media} onRemove={handleRemoveMedia} />
+
+                <div className="flex gap-2 items-end">
+                    <MediaAttacher handleMediaChange={handleMediaChange} />
+
+                    <Input
+                        placeholder="Type a message..."
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                    />
+
+                    <Button
+                        onClick={sendMessage}
+                        disabled={sending}
+                        className="min-w-[70px]"
+                    >
+                        {sending ? "..." : "Send"}
+                    </Button>
+                </div>
             </div>
         </div>
     );

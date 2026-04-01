@@ -86,7 +86,7 @@ export default function PostComponent({ post, user }: Props) {
                         size="sm"
                         onClick={handleLike}
                         disabled={isLiking}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 cursor-pointer"
                     >
                         {isLiking ? (
                             <Spinner />

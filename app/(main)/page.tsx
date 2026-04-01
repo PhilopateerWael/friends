@@ -27,7 +27,7 @@ export default function Home() {
     return (
         <div className="flex flex-col px-3 py-6 gap-4 items-center">
             <UsersSearch />
-            <PostWriter />
+            <PostWriter setFeed={setFeed} />
             {loading ?
                 [1, 2, 3].map((i) => (
                     <Card key={i} className="w-full max-w-2xl mx-auto">

@@ -43,7 +43,7 @@ export default function page() {
 
     async function onSubmit(data: z.infer<typeof signUpSchema>) {
         const result = await signUpAction(data.email, data.password, data.username);
-        console.log(result);
+
         if (!result.success) {
             toast.error(result?.message || "Failed to create account");
         } else {

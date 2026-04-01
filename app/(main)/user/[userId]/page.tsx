@@ -266,23 +266,41 @@ export default function Page() {
                     <Separator className="my-2" />
 
                     <TabsContent value="posts">
-                        {posts.map((post) => (
-                            <PostComponent
-                                key={post.id}
-                                post={post}
-                                user={state.user!}
-                            />
-                        ))}
+                        <div className="space-y-4">
+                            {posts.length > 0 ? (
+                                posts.map((post) => (
+                                    <PostComponent
+                                        key={post.id}
+                                        post={post}
+                                        user={state.user!}
+                                    />
+                                ))
+                            ) : (
+                                <Card>
+                                    <CardContent className="p-6 text-center">
+                                        No Posts To Show.
+                                    </CardContent>
+                                </Card>
+                            )}
+                        </div>
                     </TabsContent>
 
                     <TabsContent value="liked">
-                        {likedPosts.map((post) => (
-                            <PostComponent
-                                key={post.id}
-                                post={post}
-                                user={state.user!}
-                            />
-                        ))}
+                        <div className="space-y-4">
+                            {likedPosts.length ? likedPosts.map((post) => (
+                                <PostComponent
+                                    key={post.id}
+                                    post={post}
+                                    user={state.user!}
+                                />
+                            )) :
+                                <Card>
+                                    <CardContent className="p-6 text-center">
+                                        No Posts To Show.
+                                    </CardContent>
+                                </Card>
+                            }
+                        </div>
                     </TabsContent>
                 </Tabs>
             ) : (

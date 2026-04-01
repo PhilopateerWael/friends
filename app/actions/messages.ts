@@ -6,6 +6,7 @@ import z from "zod"
 import prisma from "@/lib/prisma"
 import { ValidatedActionWithAuth } from "../util/Middleware"
 import { processMedia } from "../util/Cloudinary"
+import ably from "@/lib/ably"
 
 export async function createmessageAction(content: string, media: File[], chatId: string) {
     return await ValidatedActionWithAuth(messageSchema, { content, media, chatId }, createmessage);
@@ -32,12 +33,19 @@ async function createmessage(user: User, args: z.infer<typeof messageSchema>) {
             }
         });
 
+
         if (!chat) {
             throw new Error("Chat not found");
         }
 
+        const otherUser = chat.participants.find((p) => p.userId !== user.id);
+
         if (!chat.participants.some(p => p.userId === user.id)) {
             throw new Error("User not part of the chat");
+        }
+
+        if (!otherUser) {
+            throw new Error("I dont think we can reach this case but like typescript is making me paranoid of using ! anymore");
         }
 
         let uploadedMedia: { url: string; type: MediaType }[] = [];
@@ -52,8 +60,15 @@ async function createmessage(user: User, args: z.infer<typeof messageSchema>) {
                 senderId: user.id,
                 chatId: chat.id,
                 media: uploadedMedia ? { create: uploadedMedia } : undefined
-            },
+            }, include: {
+                sender: true,
+                media: true
+            }
         });
+
+        const channel = ably.channels.get(`user-${otherUser.userId}`);
+
+        await channel.publish("message", message);
 
         return message;
     } catch (error) {
@@ -83,7 +98,7 @@ async function createChat(user: User, args: z.infer<typeof targetSchema>) {
                 }
             }
         },
-        include : {
+        include: {
             participants: {
                 include: {
                     user: true
@@ -91,8 +106,6 @@ async function createChat(user: User, args: z.infer<typeof targetSchema>) {
             }
         }
     });
-
-    console.log("Existing chat:", chat)
 
     if (!chat) {
         chat = await prisma.chat.create({

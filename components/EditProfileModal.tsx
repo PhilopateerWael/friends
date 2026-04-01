@@ -75,12 +75,12 @@ export default function EditProfileModal({
                     </select>
 
                     <div className="flex gap-3">
-                        <Button onClick={onSave} className="flex-1">
+                        <Button onClick={onSave} className="flex-1 cursor-pointer">
                             Save
                         </Button>
                         <Button
                             variant="outline"
-                            className="flex-1"
+                            className="flex-1 cursor-pointer"
                             onClick={onClose}
                         >
                             Cancel

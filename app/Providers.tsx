@@ -19,10 +19,14 @@ export type UserWithRelations = User & {
 
 type State = {
     user: UserWithRelations | null;
+    messages: any[];
 };
 
 type Action =
     | { type: "setUser"; payload: UserWithRelations | null }
+    | { type: "setMessages"; payload: any[] }
+    | { type: "addMessage"; payload: any }
+    | { type: "clearMessages" }
     | { type: "addFollow"; payload: any }
     | { type: "removeFollow"; payload: string }
     | { type: "addBlock"; payload: any }
@@ -38,7 +42,6 @@ type Action =
     | { type: "updateFollowers"; payload: any }
     | { type: "updateFollowings"; payload: any }
     | { type: "addChat", payload: any };
-
 function reducer(state: State, action: Action): State {
     switch (action.type) {
         case "setUser":
@@ -127,7 +130,26 @@ function reducer(state: State, action: Action): State {
                     ],
                 },
             };
+        case "setMessages":
+            return {
+                ...state,
+                messages: action.payload,
+            };
 
+        case "addMessage":
+            if (state.messages.length && state.messages[0].chatId == action.payload.chatId) {
+                return {
+                    ...state,
+                    messages: [...state.messages, action.payload],
+                };
+            }
+            return state;
+
+        case "clearMessages":
+            return {
+                ...state,
+                messages: [],
+            };
         default:
             return state;
     }
@@ -137,13 +159,15 @@ export const AppContext = createContext<{
     state: State;
     dispatch: Dispatch<Action>;
 }>({
-    state: { user: null },
+    state: { user: null, messages: [] },
     dispatch: () => null,
 });
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-    const [state, dispatch] = useReducer(reducer, { user: null });
-    const [loading, setLoading] = useState(true);
+    const [state, dispatch] = useReducer(reducer, {
+        user: null,
+        messages: [],
+    }); const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function init() {
@@ -177,8 +201,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
             const channel = client.channels.get(`user-${user.id}`);
 
-            channel.subscribe("new_post", (msg) => {
-                console.log("New post:", msg.data);
+            channel.subscribe("message", (msg) => {
+                dispatch({ type: "addMessage", payload: msg.data });
             });
 
             return () => client.close();

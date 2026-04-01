@@ -61,7 +61,7 @@ export default function CommentSection({
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="flex items-center gap-2 text-muted-foreground"
+                    className="flex items-center gap-2 text-muted-foreground cursor-pointer"
                 >
                     <MessageCircle className="w-5 h-5" />
                     <span className="text-sm">{comments.length}</span>
@@ -91,6 +91,7 @@ export default function CommentSection({
                     <Button
                         onClick={submit}
                         disabled={loading}
+                        className="cursor-pointer"
                     >
                         Post
                     </Button>

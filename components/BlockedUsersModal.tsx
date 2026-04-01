@@ -25,6 +25,7 @@ export default function BlockedUsersModal({
                                         size="sm"
                                         variant="destructive"
                                         onClick={() => onUnblock(b.blockedId)}
+                                        className="cursor-pointer"
                                     >
                                         Unblock
                                     </Button>
@@ -37,7 +38,7 @@ export default function BlockedUsersModal({
                         </p>
                     )}
                 </ScrollArea>
-                <Button onClick={onClose} className="w-full">
+                <Button onClick={onClose} className="w-full cursor-pointer">
                     Close
                 </Button>
             </div>
