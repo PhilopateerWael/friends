@@ -11,7 +11,7 @@ import {
     rejectFollowRequestAction,
 } from "@/app/actions/users";
 
-import type { Privacy, User } from "@/app/generated/prisma/client";
+import type { Privacy } from "@/app/generated/prisma/client";
 
 import { useAppContext } from "@/app/Providers";
 import PostComponent from "@/components/PostComponent";
@@ -31,7 +31,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { changeBioAction, changePrivacyStatusAction, changeUsernameAction } from "@/app/actions/accountManagement";
 import UsersListModal from "@/components/UsersListModal";
-import { Block, Post, ProfileUser, UserPopulated } from "@/app/types";
+import { Block, Post, ProfileUser } from "@/app/types";
 
 const ProfileSkeleton = () => (
     <div className="max-w-2xl mx-auto p-4 space-y-6">

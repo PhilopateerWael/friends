@@ -1,6 +1,13 @@
+"use client";
+
+import {
+    Dialog,
+    DialogContent,
+    DialogTitle,
+} from "@/components/ui/dialog";
+
 import { ScrollArea } from "./ui/scroll-area";
 import UserRow from "./UserRow";
-import { Button } from "@/components/ui/button";
 import { ProfileUser } from "@/app/types";
 
 export default function UsersListModal({
@@ -14,28 +21,28 @@ export default function UsersListModal({
     title: string;
     users: ProfileUser["followers"][0]["follower"][];
 }) {
-    if (!open) return null;
-
     return (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-            <div className="bg-background p-6 rounded-xl w-full max-w-md space-y-4">
-                <h2 className="text-lg font-semibold">{title}</h2>
-                <ScrollArea className="h-64">
+        <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+            <DialogContent className="max-w-md h-[70vh] flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
 
-                    {users.length ? (
-                        users.map((u) => (
-                            <UserRow key={u.id} user={u} />
-                        ))
-                    ) : (
-                        <p className="text-muted-foreground text-center">
-                            Empty
-                        </p>
-                    )}
+                <DialogTitle className="px-6 pt-4 shrink-0">
+                    {title}
+                </DialogTitle>
+
+                <ScrollArea className="flex-1 min-h-0 px-6">
+                    <div className="space-y-4">
+                        {users.length ? (
+                            users.map((u) => (
+                                <UserRow key={u.id} user={u} />
+                            ))
+                        ) : (
+                            <p className="text-muted-foreground text-center">
+                                Empty
+                            </p>
+                        )}
+                    </div>
                 </ScrollArea>
-                <Button onClick={onClose} className="w-full">
-                    Close
-                </Button>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }

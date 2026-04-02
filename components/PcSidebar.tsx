@@ -20,9 +20,9 @@ export default function PcSidebar() {
                         variant="ghost"
                         size="icon"
                         asChild
-                        className={cn(
-                            pathname === item.href && "bg-muted"
-                        )}
+                        className={
+                            `${pathname === item.href && "bg-muted"}`
+                        }
                     >
                         <Link href={item.href == "/profile" ? `/user/${state?.user?.id}` : item.href}>
                             {item.href == "/profile" ? (

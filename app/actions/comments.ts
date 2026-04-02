@@ -36,13 +36,8 @@ async function createComment(user: User, args: z.infer<typeof commentSchema>) {
                 postId: args.postId,
                 authorId: user.id,
             },
-            select: {
-                author: true,
-                content: true,
-                id: true,
-                parentId: true,
-                postId: true,
-                createdAt: true,
+            include: {
+                author: true
             }
         });
 
@@ -63,7 +58,6 @@ async function deleteComment(user: User, args: z.infer<typeof targetSchema>) {
 }
 
 async function getCommentsForPost(user: User, args: z.infer<typeof targetSchema>) {
-    const myId = user.id
     const postId = args.targetId
 
     const post = await prisma.post.findFirst({
@@ -78,18 +72,10 @@ async function getCommentsForPost(user: User, args: z.infer<typeof targetSchema>
         where: {
             postId,
         },
-        select: {
-            content: true,
-            createdAt: true,
-            id: true,
-            author: {
-                select: {
-                    id: true,
-                    name: true,
-                    image: true,
-                }
-            }
-        }, orderBy: {
+        include: {
+            author: true
+        }
+        , orderBy: {
             createdAt: "desc"
         }
     })

@@ -1,6 +1,11 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import {
+    Dialog,
+    DialogContent,
+    DialogTitle,
+} from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,14 +38,15 @@ export default function EditProfileModal({
     privacy,
     setPrivacy,
 }: Props) {
-    if (!open) return null;
-
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <Card className="w-full max-w-md animate-in fade-in zoom-in-95">
-                <CardContent className="p-6 space-y-4">
-                    <h2 className="text-lg font-semibold">Edit Profile</h2>
+        <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+            <DialogContent className="max-w-md flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
 
+                <DialogTitle className="px-6 pt-4 shrink-0">
+                    Edit Profile
+                </DialogTitle>
+
+                <div className="flex-1 px-6 py-4 space-y-4">
                     <Input
                         placeholder="Username"
                         value={username}
@@ -60,34 +66,29 @@ export default function EditProfileModal({
                             setPrivacy(e.target.value as Privacy)
                         }
                     >
-                        <option
-                            value="PUBLIC"
-                            className="bg-muted text-muted-foreground"
-                        >
-                            Public
-                        </option>
-                        <option
-                            value="PRIVATE"
-                            className="bg-muted text-muted-foreground"
-                        >
-                            Private
-                        </option>
+                        <option value="PUBLIC">Public</option>
+                        <option value="PRIVATE">Private</option>
                     </select>
+                </div>
 
-                    <div className="flex gap-3">
-                        <Button onClick={onSave} className="flex-1 cursor-pointer">
-                            Save
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="flex-1 cursor-pointer"
-                            onClick={onClose}
-                        >
-                            Cancel
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+                <div className="border-t p-4 flex gap-3 shrink-0">
+                    <Button
+                        onClick={onSave}
+                        className="flex-1 cursor-pointer"
+                    >
+                        Save
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        className="flex-1 cursor-pointer"
+                        onClick={onClose}
+                    >
+                        Cancel
+                    </Button>
+                </div>
+
+            </DialogContent>
+        </Dialog>
     );
 }

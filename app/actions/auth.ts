@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { AuthenticatedAction, getUser, ValidatedAction } from "../util/Middleware";
+import { AuthenticatedAction, ValidatedAction } from "../util/Middleware";
 import { signInSchema, signUpSchema } from "@/lib/requestSchemas";
 import z from "zod";
 import { User } from "../generated/prisma/client";
@@ -11,6 +11,7 @@ import ably from "@/lib/ably";
 import { TokenDetails } from "ably";
 import prisma from "@/lib/prisma";
 import { UserPopulated } from "../types";
+import { populatedUserIncludes } from "./helpers";
 
 export async function signUpAction(email: string, password: string, name: string) {
     return await ValidatedAction(signUpSchema, { email, password, username: name }, signUp);
@@ -41,22 +42,7 @@ async function getMe(user: User): Promise<{ user: UserPopulated | null; token: T
         where: {
             id: user.id
         },
-        include: {
-            followers: { include: { follower: true } },
-            blocks: { include: { blocked: true } },
-            following: { include: { following: true } },
-            participant: {
-                include: {
-                    chat: {
-                        include: {
-                            participants: {
-                                include: { user: true }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        include: populatedUserIncludes
     });
 
     const token = await ably.auth.requestToken({

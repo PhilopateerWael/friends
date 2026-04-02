@@ -6,22 +6,23 @@ import z from "zod"
 import prisma from "@/lib/prisma"
 import { AuthenticatedAction, ValidatedActionWithAuth } from "../util/Middleware"
 import { processMedia } from "../util/Cloudinary"
-import { canAccessPost, postConfig, postDataIncludes } from "./helpers"
+import { canAccessPost, postConfig } from "./helpers"
+import { postIncludes } from "./helpers"
 
 export async function createPostAction(content: string, media: File[]) {
     return await ValidatedActionWithAuth(postSchema, { content, media }, createPost);
 }
 
-export async function deletePostAction(postId: string) {
-    return ValidatedActionWithAuth(targetSchema, { targetId: postId }, deletePost);
+export async function deletePostAction(targetId: string) {
+    return ValidatedActionWithAuth(targetSchema, { targetId }, deletePost);
 }
 
-export async function likePostAction(postId: string) {
-    return ValidatedActionWithAuth(targetSchema, { targetId: postId }, likePost);
+export async function likePostAction(targetId: string) {
+    return ValidatedActionWithAuth(targetSchema, { targetId }, likePost);
 }
 
-export async function unlikePostAction(postId: string) {
-    return ValidatedActionWithAuth(targetSchema, { targetId: postId }, unlikePost);
+export async function unlikePostAction(targetId: string) {
+    return ValidatedActionWithAuth(targetSchema, { targetId }, unlikePost);
 }
 
 export async function getFeedAction() {
@@ -41,9 +42,8 @@ async function createPost(user: User, args: z.infer<typeof postSchema>) {
                 content: args.content,
                 authorId: user.id,
                 media: uploadedMedia ? { create: uploadedMedia } : undefined
-            }, include: postDataIncludes
+            }, include: postIncludes
         });
-
         return { success: true, post };
     } catch (error) {
         console.error("Create post failed:", error);

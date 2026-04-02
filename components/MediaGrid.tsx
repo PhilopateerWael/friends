@@ -7,7 +7,6 @@ export default function MediaGrid({ media }: { media: Media[] }) {
     const [open, setOpen] = useState(false);
     const [index, setIndex] = useState(0);
 
-
     function openViewer(i: number) {
         setIndex(i);
         setOpen(true);

@@ -7,6 +7,7 @@ import prisma from "@/lib/prisma"
 import { ValidatedActionWithAuth } from "../util/Middleware"
 import { processMedia } from "../util/Cloudinary"
 import ably from "@/lib/ably"
+import { chatIncludes, messageIncludes } from "./helpers"
 
 export async function createmessageAction(content: string, media: File[], chatId: string) {
     return await ValidatedActionWithAuth(messageSchema, { content, media, chatId }, createmessage);
@@ -60,10 +61,8 @@ async function createmessage(user: User, args: z.infer<typeof messageSchema>) {
                 senderId: user.id,
                 chatId: chat.id,
                 media: uploadedMedia ? { create: uploadedMedia } : undefined
-            }, include: {
-                sender: true,
-                media: true
-            }
+            },
+            include: messageIncludes
         });
 
         const channel = ably.channels.get(`user-${otherUser.userId}`);
@@ -72,7 +71,6 @@ async function createmessage(user: User, args: z.infer<typeof messageSchema>) {
 
         return message;
     } catch (error) {
-        console.error("Create message failed:", error);
         throw new Error("Failed to create message");
     }
 }
@@ -98,13 +96,7 @@ async function createChat(user: User, args: z.infer<typeof targetSchema>) {
                 }
             }
         },
-        include: {
-            participants: {
-                include: {
-                    user: true
-                }
-            }
-        }
+        include: chatIncludes
     });
 
     if (!chat) {
@@ -116,13 +108,7 @@ async function createChat(user: User, args: z.infer<typeof targetSchema>) {
                         { userId: args.targetId }
                     ]
                 }
-            }, include: {
-                participants: {
-                    include: {
-                        user: true
-                    }
-                }
-            }
+            }, include: chatIncludes
         });
     }
 
@@ -140,11 +126,9 @@ async function getMessagesForChat(user: User, args: z.infer<typeof targetSchema>
             }
         }, include: {
             messages: {
-                include: {
-                    sender: true,
-                    media: true
-                }
-            }
+                include: messageIncludes
+            },
+            ...chatIncludes
         }
     })
 

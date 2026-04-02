@@ -5,7 +5,7 @@ import { FollowStatus, Privacy, User } from "../generated/prisma/client"
 import z from "zod"
 import prisma from "@/lib/prisma"
 import { ValidatedActionWithAuth } from "../util/Middleware"
-import { postIncludes } from "../types"
+import { postIncludes } from "./helpers"
 
 
 export async function searchUsersAction(targetId: string) {
@@ -24,12 +24,12 @@ export async function unfollowAction(targetId: string) {
     return await ValidatedActionWithAuth(targetSchema, { targetId }, unfollowUser);
 }
 
-export async function acceptFollowRequestAction(id: string) {
-    return await ValidatedActionWithAuth(targetSchema, { targetId: id }, acceptFollow);
+export async function acceptFollowRequestAction(targetId: string) {
+    return await ValidatedActionWithAuth(targetSchema, { targetId }, acceptFollow);
 }
 
-export async function rejectFollowRequestAction(id: string) {
-    return await ValidatedActionWithAuth(targetSchema, { targetId: id }, rejectFollow);
+export async function rejectFollowRequestAction(targetId: string) {
+    return await ValidatedActionWithAuth(targetSchema, { targetId }, rejectFollow);
 }
 
 export async function blockAction(targetId: string) {
@@ -166,7 +166,7 @@ async function getPosts(userId: string) {
         where: {
             author: { id: userId }
         },
-        include : postIncludes
+        include: postIncludes
     });
 }
 
@@ -179,7 +179,7 @@ async function getLikedPosts(userId: string) {
                 }
             }
         },
-        include : postIncludes
+        include: postIncludes
     });
 }
 
@@ -198,8 +198,8 @@ async function followUser(user: User, args: z.infer<typeof targetSchema>) {
                 target.privacy === Privacy.PRIVATE
                     ? FollowStatus.PENDING
                     : FollowStatus.ACCEPTED
-        }, include :{
-            following : true
+        }, include: {
+            following: true
         }
     });
 }
@@ -227,7 +227,7 @@ async function rejectFollow(user: User, args: z.infer<typeof targetSchema>) {
 }
 
 async function blockUser(user: User, args: z.infer<typeof targetSchema>) {
-    if (user.id === args.targetId) return "ده احنا كلنا دي كلمه جديدا مثلا";
+    if (user.id === args.targetId) throw new Error("Cannot block yourself idiot");
     return prisma.block.create({
         data: {
             userId: user.id,

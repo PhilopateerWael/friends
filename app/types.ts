@@ -1,85 +1,26 @@
 import { Prisma } from "@/app/generated/prisma/client";
-import { TokenDetails } from "ably";
+import { postIncludes , messageIncludes, populatedUserIncludes, chatIncludes } from "./actions/helpers";
 
 export type UserPopulated = Prisma.UserGetPayload<{
-    include: {
-        followers: { include: { follower: true } };
-        blocks: { include: { blocked: true } };
-        following: { include: { following: true } };
-        participant: {
-            include: {
-                chat: {
-                    include: {
-                        participants: {
-                            include: { user: true };
-                        };
-                    };
-                };
-            };
-        };
-    };
+    include: typeof populatedUserIncludes
 }>;
 
 export type Comment = Prisma.CommentGetPayload<{
-    select: {
-        author: true;
-        content: true;
-        id: true;
-        parentId: true;
-        postId: true;
-        createdAt: true;
-    };
-}>;
-
-export type CommentWithAuthor = Prisma.CommentGetPayload<{
-    select: {
-        content: true;
-        createdAt: true;
-        id: true;
-        author: {
-            select: {
-                id: true;
-                name: true;
-                image: true;
-            };
-        };
-    };
-}>;
-
-export const postIncludes = {
-    author: true,
-    media: true,
-    likes: {
-        include: {
-            user: true
-        }
+    include: {
+        author: true
     }
-} satisfies Prisma.PostInclude;
+}>;
 
 export type Post = Prisma.PostGetPayload<{
     include: typeof postIncludes;
 }>;
 
-export type CreatePostResponse =
-    | { success: true; post: Post }
-    | { success: false; error: string };
-
-
 export type Message = Prisma.MessageGetPayload<{
-    include: {
-        sender: true;
-        media: true;
-    };
+    include: typeof messageIncludes
 }>;
 
 export type Chat = Prisma.ChatGetPayload<{
-    include: {
-        participants: {
-            include: {
-                user: true;
-            };
-        };
-    };
+    include: typeof chatIncludes
 }>;
 
 export type ChatWithMessages = Prisma.ChatGetPayload<{
@@ -93,7 +34,6 @@ export type ChatWithMessages = Prisma.ChatGetPayload<{
     };
 }>;
 
-
 export type ProfileUser = Prisma.UserGetPayload<{
     include: {
         followers: {
@@ -105,27 +45,6 @@ export type ProfileUser = Prisma.UserGetPayload<{
     };
 }>;
 
-export type ProfilePost = Prisma.PostGetPayload<{
-    select: {
-        id: true;
-        content: true;
-        createdAt: true;
-        author: true;
-        media: true;
-        likes: {
-            include: { user: true };
-        };
-    };
-}>;
-
-export type ProfileResponse = {
-    user: ProfileUser;
-    posts: ProfilePost[];
-    likedPosts: ProfilePost[];
-    canSeePosts: boolean;
-} | null;
-
-
 export type Follow = Prisma.FollowGetPayload<{}>;
 
 export type Block = Prisma.BlockGetPayload<{
@@ -133,8 +52,3 @@ export type Block = Prisma.BlockGetPayload<{
         blocked: true;
     };
 }>;
-
-export type SearchUser = Prisma.UserGetPayload<{}>;
-
-export type ActionSuccess = { success: true };
-export type ActionError = { success: false; message: string };

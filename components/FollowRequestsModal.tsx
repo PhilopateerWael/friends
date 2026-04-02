@@ -1,7 +1,15 @@
-import { UserPopulated } from "@/app/types";
+"use client";
+
+import {
+    Dialog,
+    DialogContent,
+    DialogTitle,
+} from "@/components/ui/dialog";
+
 import { ScrollArea } from "./ui/scroll-area";
 import UserRow from "./UserRow";
 import { Button } from "@/components/ui/button";
+import { UserPopulated } from "@/app/types";
 
 export default function FollowRequestsModal({
     open,
@@ -16,48 +24,50 @@ export default function FollowRequestsModal({
     onAccept: (requestId: string) => void;
     onReject: (requestId: string) => void;
 }) {
-    if (!open) return null;
-
     return (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 max-h-screen">
-            <div className="bg-background p-6 rounded-xl w-full max-w-md space-y-4">
-                <h2 className="text-lg font-semibold">Follow Requests</h2>
-                <ScrollArea className="h-64">
+        <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+            <DialogContent className="max-w-md h-[70vh] flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
 
-                    {requests.length ? (
-                        requests.map((req) => (
-                            <UserRow
-                                key={req.id}
-                                user={req.follower}
-                                action={
-                                    <>
-                                        <Button
-                                            size="sm"
-                                            onClick={() => onAccept(req.id)}
-                                        >
-                                            Accept
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => onReject(req.id)}
-                                        >
-                                            Reject
-                                        </Button>
-                                    </>
-                                }
-                            />
-                        ))
-                    ) : (
-                        <p className="text-muted-foreground text-center">
-                            No requests
-                        </p>
-                    )}
+                <DialogTitle className="px-6 pt-4 shrink-0">
+                    Follow Requests
+                </DialogTitle>
+
+                <ScrollArea className="flex-1 min-h-0 px-6">
+                    <div className="space-y-4">
+                        {requests.length ? (
+                            requests.map((req) => (
+                                <UserRow
+                                    key={req.id}
+                                    user={req.follower}
+                                    action={
+                                        <div className="flex gap-2">
+                                            <Button
+                                                size="sm"
+                                                onClick={() => onAccept(req.id)}
+                                                className="cursor-pointer"
+                                            >
+                                                Accept
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => onReject(req.id)}
+                                                className="cursor-pointer"
+                                            >
+                                                Reject
+                                            </Button>
+                                        </div>
+                                    }
+                                />
+                            ))
+                        ) : (
+                            <p className="text-muted-foreground text-center">
+                                No requests
+                            </p>
+                        )}
+                    </div>
                 </ScrollArea>
-                <Button onClick={onClose} className="w-full">
-                    Close
-                </Button>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }

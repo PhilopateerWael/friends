@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 import navItems from "@/app/navdata"
 import { useAppContext } from "@/app/Providers"
 
@@ -20,9 +19,9 @@ export default function MobileNavbar() {
                         variant="ghost"
                         size="icon"
                         asChild
-                        className={cn(
-                            pathname === item.href && "text-primary"
-                        )}
+                        className={
+                            `${pathname === item.href && "text-primary"}`
+                        }
                     >
                         <Link href={item.href == "/profile" ? `/user/${state?.user?.id}` : item.href}>
                             {item.href == "/profile" ? (

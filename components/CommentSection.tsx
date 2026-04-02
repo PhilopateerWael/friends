@@ -8,13 +8,13 @@ import { formatDistanceToNow } from "date-fns"
 import { ScrollArea } from "./ui/scroll-area"
 import { toast } from "sonner"
 import { redirect } from "next/navigation"
-import type { CommentWithAuthor } from "@/app/types"
+import type { Comment } from "@/app/types"
 export default function CommentSection({
     postId,
 }: {
     postId: string;
 }) {
-    const [comments, setComments] = useState<CommentWithAuthor[]>([])
+    const [comments, setComments] = useState<Comment[]>([])
     const [text, setText] = useState("")
     const [loading, setLoading] = useState(false)
 
@@ -110,7 +110,7 @@ export default function CommentSection({
 }
 
 
-export function CommentItem({ comment }: { comment: CommentWithAuthor }) {
+export function CommentItem({ comment }: { comment: Comment }) {
     return (
         <div className="flex gap-3">
 
