@@ -2,46 +2,37 @@
 
 import * as Ably from "ably";
 import { createContext, useReducer, Dispatch, useContext, useEffect, useState } from "react";
-import { Block, Follow, User } from "./generated/prisma/client";
 import { getMeAction, getAblyTokenAction } from "./actions/auth";
+import { Block, Chat, Message, UserPopulated } from "./types";
+import { Privacy } from "./generated/prisma/enums";
 
-export type UserWithRelations = User & {
-    followers: (Follow & { follower: User })[];
-    following: Follow[];
-    blocks: Block[];
-    participant: {
-        chat: {
-            participants: User[],
-            id: string,
-        }
-    }[];
-};
 
 type State = {
-    user: UserWithRelations | null;
-    messages: any[];
+    user: UserPopulated | null;
+    messages: Message[];
 };
 
 type Action =
-    | { type: "setUser"; payload: UserWithRelations | null }
-    | { type: "setMessages"; payload: any[] }
-    | { type: "addMessage"; payload: any }
+    | { type: "setUser"; payload: UserPopulated | null }
+    | { type: "setMessages"; payload: Message[] }
+    | { type: "addMessage"; payload: Message }
     | { type: "clearMessages" }
-    | { type: "addFollow"; payload: any }
+    | { type: "addFollow"; payload: UserPopulated["following"][0] }
     | { type: "removeFollow"; payload: string }
-    | { type: "addBlock"; payload: any }
+    | { type: "addBlock"; payload: Block }
     | { type: "removeBlock"; payload: string }
     | {
         type: "updateProfile";
         payload: {
             name?: string;
             bio?: string;
-            privacy?: any;
+            privacy?: Privacy;
         }
     }
-    | { type: "updateFollowers"; payload: any }
-    | { type: "updateFollowings"; payload: any }
-    | { type: "addChat", payload: any };
+    | { type: "updateFollowers"; payload: UserPopulated["followers"] }
+    | { type: "updateFollowings"; payload: UserPopulated["following"] }
+    | { type: "addChat", payload: UserPopulated["participant"][0] };
+
 function reducer(state: State, action: Action): State {
     switch (action.type) {
         case "setUser":
@@ -64,7 +55,7 @@ function reducer(state: State, action: Action): State {
                 user: {
                     ...state.user,
                     following: state.user.following.filter(
-                        (f: any) => f.followingId !== action.payload
+                        (f) => f.followingId !== action.payload
                     ),
                 },
             };
@@ -86,7 +77,7 @@ function reducer(state: State, action: Action): State {
                 user: {
                     ...state.user,
                     blocks: state.user.blocks.filter(
-                        (b: any) => b.blockedId !== action.payload
+                        (b) => b.blockedId !== action.payload
                     ),
                 },
             };
@@ -186,7 +177,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             }
         }
 
-        function setAbly(token: any, user: User) {
+        function setAbly(token: any, user: UserPopulated) {
             const client = new Ably.Realtime({
                 tokenDetails: token,
                 authCallback: async (tokenParams, callback) => {

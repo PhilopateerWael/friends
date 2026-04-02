@@ -12,13 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
-import { Media, Post, User } from "@/app/generated/prisma/client";
 import MediaGrid from "./MediaGrid";
 import CommentSection from "./CommentSection";
 import { redirect } from "next/navigation";
+import type { Post } from "@/app/types";
+import { User } from "@/app/generated/prisma/client";
 
 type Props = {
-    post: Post & { media: Media[] } & { comments: Comment[] } & { likes: { user: User }[] } & { author: User };
+    post: Post;
     user: User;
 };
 
@@ -37,8 +38,8 @@ export default function PostComponent({ post, user }: Props) {
                 await unlikePostAction(post.id);
                 setLikes((prev) => prev.filter((l) => l.user.id !== user.id));
             } else {
-                await likePostAction(post.id);
-                setLikes((prev) => [...prev, { user: user }]);
+                const like = await likePostAction(post.id);
+                setLikes((prev) => [...prev, like]);
             }
         } catch (error) {
             console.error(error);

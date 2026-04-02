@@ -8,9 +8,8 @@ import { User } from "@/app/generated/prisma/client"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Button } from "./ui/button"
 import { ScrollArea } from "./ui/scroll-area"
-import { redirect } from "next/navigation"
 
-const UsersSearch = () => {
+const UsersSearch = ({ action }: { action: (user: User) => void }) => {
     const [query, setQuery] = useState("")
     const [results, setResults] = useState<User[]>([])
     const [focused, setFocused] = useState(false)
@@ -87,7 +86,7 @@ const UsersSearch = () => {
                                         key={user.id}
                                         variant="secondary"
                                         className="w-full justify-start h-fit cursor-pointer"
-                                        onClick={() => redirect("/user/" + user.id)}
+                                        onClick={() => action(user)}
                                     >
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={user.image} alt={user.name} />

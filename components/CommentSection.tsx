@@ -4,16 +4,17 @@ import { useEffect, useState } from "react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { MessageCircle } from "lucide-react"
-import { Comment } from "@/app/generated/prisma/client"
 import { formatDistanceToNow } from "date-fns"
 import { ScrollArea } from "./ui/scroll-area"
 import { toast } from "sonner"
 import { redirect } from "next/navigation"
-
+import type { CommentWithAuthor } from "@/app/types"
 export default function CommentSection({
     postId,
-}: any) {
-    const [comments, setComments] = useState<any[]>([])
+}: {
+    postId: string;
+}) {
+    const [comments, setComments] = useState<CommentWithAuthor[]>([])
     const [text, setText] = useState("")
     const [loading, setLoading] = useState(false)
 
@@ -86,6 +87,12 @@ export default function CommentSection({
                         placeholder="Write a comment..."
                         value={text}
                         onChange={(e) => setText(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                submit();
+                            }
+                        }}
                     />
 
                     <Button
@@ -103,7 +110,7 @@ export default function CommentSection({
 }
 
 
-export function CommentItem({ comment }: any) {
+export function CommentItem({ comment }: { comment: CommentWithAuthor }) {
     return (
         <div className="flex gap-3">
 

@@ -13,7 +13,7 @@ import {
 
 import type { Privacy, User } from "@/app/generated/prisma/client";
 
-import { useAppContext, UserWithRelations } from "@/app/Providers";
+import { useAppContext } from "@/app/Providers";
 import PostComponent from "@/components/PostComponent";
 
 import EditProfileModal from "@/components/EditProfileModal";
@@ -31,6 +31,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { changeBioAction, changePrivacyStatusAction, changeUsernameAction } from "@/app/actions/accountManagement";
 import UsersListModal from "@/components/UsersListModal";
+import { Block, Post, ProfileUser, UserPopulated } from "@/app/types";
 
 const ProfileSkeleton = () => (
     <div className="max-w-2xl mx-auto p-4 space-y-6">
@@ -52,12 +53,12 @@ export default function Page() {
 
     const userId = params.userId as string;
 
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<ProfileUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [canSeePosts, setCanSeePosts] = useState(false);
 
-    const [posts, setPosts] = useState<any[]>([]);
-    const [likedPosts, setLikedPosts] = useState<any[]>([]);
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [likedPosts, setLikedPosts] = useState<Post[]>([]);
 
     const [followLoading, setFollowLoading] = useState(false);
     const [blockLoading, setBlockLoading] = useState(false);
@@ -72,8 +73,8 @@ export default function Page() {
     const [openFollowers, setOpenFollowers] = useState(false);
     const [openFollowing, setOpenFollowing] = useState(false);
 
-    const [followersList, setFollowersList] = useState<User[]>();
-    const [followingList, setFollowingList] = useState<User[]>();
+    const [followersList, setFollowersList] = useState<ProfileUser["followers"][0]["follower"][]>([]);
+    const [followingList, setFollowingList] = useState<ProfileUser["followers"][0]["follower"][]>([]);
 
     const isOwnProfile = state.user?.id === userId;
 
@@ -81,11 +82,11 @@ export default function Page() {
         if (!state.user) return null;
 
         const follow = state.user.following?.find(
-            (f: any) => f.followingId === userId
+            (f) => f.followingId === userId
         );
 
         const block = state.user.blocks?.find(
-            (b: any) => b.blockedId === userId
+            (b) => b.blockedId === userId
         );
 
         return {
@@ -95,7 +96,7 @@ export default function Page() {
         };
     }, [state.user, userId]);
 
-    const followRequests = state.user?.followers?.filter((f: any) => f.status === "PENDING") || [];
+    const followRequests = state.user?.followers?.filter((f) => f.status === "PENDING") || [];
 
     useEffect(() => {
         async function fetchProfile() {
@@ -104,11 +105,11 @@ export default function Page() {
             if (res) {
                 setUser(res.user);
                 setCanSeePosts(res.canSeePosts);
-                setPosts(res.posts || []);
-                setLikedPosts(res.likedPosts || []);
+                setPosts(res.posts);
+                setLikedPosts(res.likedPosts);
 
-                setFollowersList(res.user.followers.filter(x => x.status == "ACCEPTED").map((f: any) => f.follower));
-                setFollowingList(res.user.following.filter(x => x.status == "ACCEPTED").map((f: any) => f.following));
+                setFollowersList(res.user.followers.filter(x => x.status == "ACCEPTED").map((f) => f.follower));
+                setFollowingList(res.user.following.filter(x => x.status == "ACCEPTED").map((f) => f.following));
 
                 if (isOwnProfile) {
                     setUsername(res.user.name);
@@ -150,8 +151,8 @@ export default function Page() {
                     type: "addFollow",
                     payload: res,
                 });
-
-                followersList && setFollowersList([...followersList, state.user]);
+                
+                followersList && setFollowersList([...followersList , res.following]);
             }
         } finally {
             setFollowLoading(false);
@@ -176,7 +177,7 @@ export default function Page() {
 
                 dispatch({
                     type: "addBlock",
-                    payload: block,
+                    payload: block as Block,
                 });
 
                 router.push("/");
@@ -319,7 +320,7 @@ export default function Page() {
                     await acceptFollowRequestAction(id);
                     dispatch({
                         type: "updateFollowers",
-                        payload: state.user?.followers.map((f: any) =>
+                        payload: state.user?.followers.map((f) =>
                             f.id === id ? { ...f, status: "ACCEPTED" } : f
                         ) || [],
                     });
@@ -328,7 +329,7 @@ export default function Page() {
                     await rejectFollowRequestAction(id);
                     dispatch({
                         type: "updateFollowers",
-                        payload: state.user?.followers.filter((f: any) => f.id !== id) || [],
+                        payload: state.user?.followers.filter((f) => f.id !== id) || [],
                     });
                 }}
             />
@@ -341,13 +342,8 @@ export default function Page() {
                     await unblockAction(id);
 
                     dispatch({
-                        type: "setUser",
-                        payload: {
-                            ...state!.user,
-                            blocks: state!.user!.blocks.filter(
-                                (b: any) => b.blockedId !== id
-                            ),
-                        } as UserWithRelations,
+                        type: "removeBlock",
+                        payload: id,
                     });
                 }}
             />

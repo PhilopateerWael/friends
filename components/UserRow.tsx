@@ -1,10 +1,12 @@
 "use client";
 
+import { User } from "@/app/generated/prisma/browser";
+import { ProfileUser } from "@/app/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { redirect } from "next/navigation";
 
 type Props = {
-    user: any;
+    user: ProfileUser["followers"][0]["follower"];
     action?: React.ReactNode;
 };
 

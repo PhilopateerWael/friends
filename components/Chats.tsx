@@ -9,11 +9,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Chat } from "@/app/types";
 
 export default function ChatList() {
     const { state } = useAppContext();
 
-    const [selectedChat, setSelectedChat] = useState<any>(null);
+    const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
     const [openNewChat, setOpenNewChat] = useState(false);
 
     const chats = state.user?.participant || [];
@@ -33,11 +34,11 @@ export default function ChatList() {
 
             <div className="space-y-3 pb-12">
                 {chats.length ? (
-                    chats.map((p: any) => {
+                    chats.map((p) => {
                         const chat = p.chat;
 
                         const otherUser = chat.participants.find(
-                            (part: any) => part.userId !== state.user?.id
+                            (part) => part.userId !== state.user?.id
                         )?.user;
 
                         return (

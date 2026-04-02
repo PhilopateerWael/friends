@@ -72,10 +72,12 @@ async function likePost(user: User, args: z.infer<typeof targetSchema>) {
         throw new Error("Post not found or access denied");
     }
 
-    await prisma.like.create({
+    return await prisma.like.create({
         data: {
             postId: args.targetId,
             userId: user.id
+        }, include: {
+            user: true
         }
     });
 }
@@ -100,5 +102,5 @@ async function unlikePost(user: User, args: z.infer<typeof targetSchema>) {
 }
 
 async function getFeed(user: User) {
-    return await prisma.post.findMany({ ...postConfig(user) , orderBy: { createdAt: "desc" } });
+    return await prisma.post.findMany({ ...postConfig(user), orderBy: { createdAt: "desc" } });
 }

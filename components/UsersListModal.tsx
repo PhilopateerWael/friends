@@ -1,13 +1,19 @@
 import { ScrollArea } from "./ui/scroll-area";
 import UserRow from "./UserRow";
 import { Button } from "@/components/ui/button";
+import { ProfileUser } from "@/app/types";
 
 export default function UsersListModal({
     open,
     onClose,
     title,
     users,
-}: any) {
+}: {
+    open: boolean;
+    onClose: () => void;
+    title: string;
+    users: ProfileUser["followers"][0]["follower"][];
+}) {
     if (!open) return null;
 
     return (
@@ -17,7 +23,7 @@ export default function UsersListModal({
                 <ScrollArea className="h-64">
 
                     {users.length ? (
-                        users.map((u: any) => (
+                        users.map((u) => (
                             <UserRow key={u.id} user={u} />
                         ))
                     ) : (

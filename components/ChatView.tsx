@@ -16,6 +16,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import MediaAttacher from "./MediaAttacher";
 import Message from "./Message";
 import MediaPreviewList from "./MediaPreviewList";
+import { Chat } from "@/app/types";
 
 type MediaFile = {
     file: File;
@@ -26,7 +27,7 @@ export default function ChatView({
     chat,
     onBack,
 }: {
-    chat: any;
+    chat: Chat;
     onBack: () => void;
 }) {
     const { state, dispatch } = useAppContext();
@@ -39,7 +40,7 @@ export default function ChatView({
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
     const otherUser = chat.participants.find(
-        (p: any) => p.userId !== state.user?.id
+        (p) => p.userId !== state.user?.id
     )?.user;
 
     const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +156,12 @@ export default function ChatView({
                         placeholder="Type a message..."
                         value={text}
                         onChange={(e) => setText(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                sendMessage();
+                            }
+                        }}
                     />
 
                     <Button

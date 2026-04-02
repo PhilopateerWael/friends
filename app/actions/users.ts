@@ -5,6 +5,7 @@ import { FollowStatus, Privacy, User } from "../generated/prisma/client"
 import z from "zod"
 import prisma from "@/lib/prisma"
 import { ValidatedActionWithAuth } from "../util/Middleware"
+import { postIncludes } from "../types"
 
 
 export async function searchUsersAction(targetId: string) {
@@ -81,11 +82,6 @@ async function getProfile(user: User, args: z.infer<typeof targetSchema>) {
     const profile = await getProfileUser(user.id, args.targetId);
     if (!profile) return null;
 
-    const [followersCount, followingsCount] = await Promise.all([
-        getFollowersCount(args.targetId),
-        getFollowingsCount(args.targetId)
-    ]);
-
     if (isSelf) {
         const [posts, likedPosts] = await Promise.all([
             getPosts(args.targetId),
@@ -97,8 +93,6 @@ async function getProfile(user: User, args: z.infer<typeof targetSchema>) {
             posts,
             likedPosts,
             canSeePosts: true,
-            followersCount,
-            followingsCount
         };
     }
 
@@ -110,8 +104,6 @@ async function getProfile(user: User, args: z.infer<typeof targetSchema>) {
             posts: [],
             likedPosts: [],
             canSeePosts,
-            followersCount,
-            followingsCount
         };
     }
 
@@ -125,8 +117,6 @@ async function getProfile(user: User, args: z.infer<typeof targetSchema>) {
         posts,
         likedPosts,
         canSeePosts,
-        followersCount,
-        followingsCount
     };
 }
 
@@ -147,24 +137,6 @@ async function getProfileUser(currentUserId: string, targetId: string) {
             following: {
                 include: { following: true }
             },
-        }
-    });
-}
-
-async function getFollowersCount(userId: string) {
-    return prisma.follow.count({
-        where: {
-            followingId: userId,
-            status: FollowStatus.ACCEPTED
-        }
-    });
-}
-
-async function getFollowingsCount(userId: string) {
-    return prisma.follow.count({
-        where: {
-            followerId: userId,
-            status: FollowStatus.ACCEPTED
         }
     });
 }
@@ -194,16 +166,7 @@ async function getPosts(userId: string) {
         where: {
             author: { id: userId }
         },
-        select: {
-            id: true,
-            content: true,
-            createdAt: true,
-            author: true,
-            media: true,
-            likes: {
-                include: { user: true }
-            }
-        }
+        include : postIncludes
     });
 }
 
@@ -216,16 +179,7 @@ async function getLikedPosts(userId: string) {
                 }
             }
         },
-        select: {
-            id: true,
-            content: true,
-            createdAt: true,
-            author: true,
-            media: true,
-            likes: {
-                include: { user: true }
-            }
-        }
+        include : postIncludes
     });
 }
 
@@ -244,6 +198,8 @@ async function followUser(user: User, args: z.infer<typeof targetSchema>) {
                 target.privacy === Privacy.PRIVATE
                     ? FollowStatus.PENDING
                     : FollowStatus.ACCEPTED
+        }, include :{
+            following : true
         }
     });
 }
@@ -272,7 +228,6 @@ async function rejectFollow(user: User, args: z.infer<typeof targetSchema>) {
 
 async function blockUser(user: User, args: z.infer<typeof targetSchema>) {
     if (user.id === args.targetId) return "ده احنا كلنا دي كلمه جديدا مثلا";
-    
     return prisma.block.create({
         data: {
             userId: user.id,
@@ -292,5 +247,3 @@ async function unblockUser(user: User, args: z.infer<typeof targetSchema>) {
         }
     });
 }
-
-// block can throw , follow can throw

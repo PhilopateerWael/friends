@@ -1,10 +1,11 @@
+import type { Message } from "@/app/types";
 import MediaGrid from "./MediaGrid";
 
 export default function Message({
     msg,
     isOwn,
 }: {
-    msg: any;
+    msg: Message;
     isOwn: boolean;
 }) {
     return (

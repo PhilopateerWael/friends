@@ -8,10 +8,12 @@ import PostComponent from "@/components/PostComponent";
 import UsersSearch from "@/components/UsersSearch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
+import { Post } from "../types";
+import { redirect } from "next/navigation";
 
 export default function Home() {
     const { state } = useAppContext();
-    const [feed, setFeed] = useState<any[]>([]);
+    const [feed, setFeed] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -26,7 +28,7 @@ export default function Home() {
 
     return (
         <div className="flex flex-col px-3 py-6 gap-4 items-center">
-            <UsersSearch />
+            <UsersSearch action={(x) => redirect("/user/" + x.id)} />
             <PostWriter setFeed={setFeed} />
             {loading ?
                 [1, 2, 3].map((i) => (
@@ -43,7 +45,7 @@ export default function Home() {
                         </CardContent>
                     </Card>
                 ))
-                : feed.map((post: any) => (
+                : feed.map((post: Post) => (
                     <PostComponent
                         key={post?.id}
                         post={post}

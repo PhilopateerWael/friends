@@ -1,3 +1,4 @@
+import { UserPopulated } from "@/app/types";
 import { ScrollArea } from "./ui/scroll-area";
 import UserRow from "./UserRow";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,12 @@ export default function BlockedUsersModal({
     onClose,
     blocks,
     onUnblock,
-}: any) {
+}: {
+    open: boolean;
+    onClose: () => void;
+    blocks: UserPopulated["blocks"];
+    onUnblock: (blockedId: string) => void;
+}) {
     if (!open) return null;
 
     return (
@@ -16,7 +22,7 @@ export default function BlockedUsersModal({
                 <h2 className="text-lg font-semibold">Blocked Users</h2>
                 <ScrollArea className="h-64">
                     {blocks.length ? (
-                        blocks.map((b: any) => (
+                        blocks.map((b) => (
                             <UserRow
                                 key={b.id}
                                 user={b.blocked}

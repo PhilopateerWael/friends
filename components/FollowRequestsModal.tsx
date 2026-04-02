@@ -1,3 +1,4 @@
+import { UserPopulated } from "@/app/types";
 import { ScrollArea } from "./ui/scroll-area";
 import UserRow from "./UserRow";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,13 @@ export default function FollowRequestsModal({
     requests,
     onAccept,
     onReject,
-}: any) {
+}: {
+    open: boolean;
+    onClose: () => void;
+    requests: UserPopulated["followers"];
+    onAccept: (requestId: string) => void;
+    onReject: (requestId: string) => void;
+}) {
     if (!open) return null;
 
     return (
@@ -18,7 +25,7 @@ export default function FollowRequestsModal({
                 <ScrollArea className="h-64">
 
                     {requests.length ? (
-                        requests.map((req: any) => (
+                        requests.map((req) => (
                             <UserRow
                                 key={req.id}
                                 user={req.follower}

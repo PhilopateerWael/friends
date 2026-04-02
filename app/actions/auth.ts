@@ -10,6 +10,7 @@ import { User } from "../generated/prisma/client";
 import ably from "@/lib/ably";
 import { TokenDetails } from "ably";
 import prisma from "@/lib/prisma";
+import { UserPopulated } from "../types";
 
 export async function signUpAction(email: string, password: string, name: string) {
     return await ValidatedAction(signUpSchema, { email, password, username: name }, signUp);
@@ -35,7 +36,7 @@ export async function getAblyTokenAction(): Promise<TokenDetails> {
     return await AuthenticatedAction(getAblyToken);
 }
 
-async function getMe(user: User): Promise<any> {
+async function getMe(user: User): Promise<{ user: UserPopulated | null; token: TokenDetails }> {
     const userPopulated = await prisma.user.findUnique({
         where: {
             id: user.id
