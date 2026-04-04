@@ -64,8 +64,11 @@ export default function Page() {
     const [blockLoading, setBlockLoading] = useState(false);
 
     const [openRequests, setOpenRequests] = useState(false);
+    const [requestsActionLoading, setRequestsActionLoading] = useState(false);
     const [openBlocked, setOpenBlocked] = useState(false);
+    const [blockedActionLoading, setBlockedActionLoading] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
+    const [editLoading, setEditLoading] = useState(false);
 
     const [username, setUsername] = useState("");
     const [bio, setBio] = useState("");
@@ -151,8 +154,8 @@ export default function Page() {
                     type: "addFollow",
                     payload: res,
                 });
-                
-                followersList && setFollowersList([...followersList , res.following]);
+
+                followersList && setFollowersList([...followersList, res.following]);
             }
         } finally {
             setFollowLoading(false);
@@ -188,6 +191,7 @@ export default function Page() {
     }
 
     async function handleSave() {
+        setEditLoading(true);
         await changeUsernameAction(username);
         await changeBioAction(bio);
         await changePrivacyStatusAction(privacy);
@@ -206,6 +210,7 @@ export default function Page() {
         });
 
         setOpenEdit(false);
+        setEditLoading(false);
     }
 
     return (
@@ -241,6 +246,7 @@ export default function Page() {
                 setBio={setBio}
                 privacy={privacy}
                 setPrivacy={setPrivacy}
+                isLoading={editLoading}
             />
 
             <UsersListModal
@@ -316,35 +322,48 @@ export default function Page() {
                 open={openRequests}
                 onClose={() => setOpenRequests(false)}
                 requests={followRequests}
+                actionLoading={requestsActionLoading}
                 onAccept={async (id: string) => {
+                    setRequestsActionLoading(true);
                     await acceptFollowRequestAction(id);
+
                     dispatch({
                         type: "updateFollowers",
                         payload: state.user?.followers.map((f) =>
                             f.id === id ? { ...f, status: "ACCEPTED" } : f
                         ) || [],
                     });
+                    
+                    setRequestsActionLoading(false);
                 }}
                 onReject={async (id: string) => {
+                    setRequestsActionLoading(true);
                     await rejectFollowRequestAction(id);
+
                     dispatch({
                         type: "updateFollowers",
                         payload: state.user?.followers.filter((f) => f.id !== id) || [],
                     });
+
+                    setRequestsActionLoading(false);
                 }}
             />
 
             <BlockedUsersModal
                 open={openBlocked}
+                actionLoading={blockedActionLoading}
                 onClose={() => setOpenBlocked(false)}
                 blocks={state.user?.blocks || []}
                 onUnblock={async (id: string) => {
+                    setBlockedActionLoading(true);
                     await unblockAction(id);
 
                     dispatch({
                         type: "removeBlock",
                         payload: id,
                     });
+
+                    setBlockedActionLoading(false);
                 }}
             />
         </div>

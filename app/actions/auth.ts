@@ -48,7 +48,7 @@ async function getMe(user: User): Promise<{ user: UserPopulated | null; token: T
     const token = await ably.auth.requestToken({
         clientId: user.id,
         capability: {
-            [`user-${user.id}`]: ["subscribe"]
+            [`user-${user.id}`]: ["subscribe"],
         }
     })
 

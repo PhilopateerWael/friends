@@ -12,21 +12,6 @@ import { Textarea } from "@/components/ui/textarea";
 
 import type { Privacy } from "@/app/generated/prisma/client";
 
-type Props = {
-    open: boolean;
-    onClose: () => void;
-    onSave: () => void;
-
-    username: string;
-    setUsername: (v: string) => void;
-
-    bio: string;
-    setBio: (v: string) => void;
-
-    privacy: Privacy;
-    setPrivacy: (v: Privacy) => void;
-};
-
 export default function EditProfileModal({
     open,
     onClose,
@@ -37,7 +22,19 @@ export default function EditProfileModal({
     setBio,
     privacy,
     setPrivacy,
-}: Props) {
+    isLoading,
+}: {
+    open: boolean;
+    onClose: () => void;
+    onSave: () => void;
+    username: string;
+    setUsername: (v: string) => void;
+    bio: string;
+    setBio: (v: string) => void;
+    privacy: Privacy;
+    setPrivacy: (v: Privacy) => void;
+    isLoading: boolean;
+}) {
     return (
         <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
             <DialogContent className="max-w-md flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
@@ -75,6 +72,7 @@ export default function EditProfileModal({
                     <Button
                         onClick={onSave}
                         className="flex-1 cursor-pointer"
+                        disabled={isLoading}
                     >
                         Save
                     </Button>
@@ -83,6 +81,7 @@ export default function EditProfileModal({
                         variant="outline"
                         className="flex-1 cursor-pointer"
                         onClick={onClose}
+                        disabled={isLoading}
                     >
                         Cancel
                     </Button>

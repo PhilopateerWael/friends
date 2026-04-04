@@ -17,12 +17,14 @@ export default function FollowRequestsModal({
     requests,
     onAccept,
     onReject,
+    actionLoading,
 }: {
     open: boolean;
     onClose: () => void;
     requests: UserPopulated["followers"];
     onAccept: (requestId: string) => void;
     onReject: (requestId: string) => void;
+    actionLoading: boolean;
 }) {
     return (
         <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
@@ -45,6 +47,7 @@ export default function FollowRequestsModal({
                                                 size="sm"
                                                 onClick={() => onAccept(req.id)}
                                                 className="cursor-pointer"
+                                                disabled={actionLoading}
                                             >
                                                 Accept
                                             </Button>
@@ -53,6 +56,7 @@ export default function FollowRequestsModal({
                                                 variant="outline"
                                                 onClick={() => onReject(req.id)}
                                                 className="cursor-pointer"
+                                                disabled={actionLoading}
                                             >
                                                 Reject
                                             </Button>

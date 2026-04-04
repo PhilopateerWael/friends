@@ -9,6 +9,7 @@ import { ScrollArea } from "./ui/scroll-area"
 import { toast } from "sonner"
 import { redirect } from "next/navigation"
 import type { Comment } from "@/app/types"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 export default function CommentSection({
     postId,
 }: {
@@ -62,7 +63,7 @@ export default function CommentSection({
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="flex items-center gap-2 text-muted-foreground cursor-pointer"
+                    className="flex items-center gap-2 text-muted-foreground cursor-pointer flex-1"
                 >
                     <MessageCircle className="w-5 h-5" />
                     <span className="text-sm">{comments.length}</span>
@@ -114,11 +115,15 @@ export function CommentItem({ comment }: { comment: Comment }) {
     return (
         <div className="flex gap-3">
 
-            <img
+            <Avatar
                 onClick={() => redirect("/user/" + comment.author.id)}
-                src={comment.author.image}
-                className="w-8 h-8 rounded-full object-cover cursor-pointer"
-            />
+                className="w-8 h-8 cursor-pointer"
+            >
+                <AvatarImage src={comment.author.image} />
+                <AvatarFallback>
+                    {comment.author.name?.[0]}
+                </AvatarFallback>
+            </Avatar>
 
             <div className="flex flex-col gap-1">
 

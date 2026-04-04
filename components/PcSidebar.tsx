@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import navItems from "@/app/navdata"
 import { useAppContext } from "@/app/Providers"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 
 export default function PcSidebar() {
     const pathname = usePathname()
@@ -26,7 +27,14 @@ export default function PcSidebar() {
                     >
                         <Link href={item.href == "/profile" ? `/user/${state?.user?.id}` : item.href}>
                             {item.href == "/profile" ? (
-                                <img src={state?.user?.image || undefined} alt="Profile" className="h-6 w-6 rounded-md" />
+                                <Avatar
+                                    className="w-8 h-8 cursor-pointer"
+                                >
+                                    <AvatarImage src={state?.user?.image} />
+                                    <AvatarFallback>
+                                        {state?.user?.name?.[0]}
+                                    </AvatarFallback>
+                                </Avatar>
                             ) : (
                                 <item.icon className="h-6 w-6" />
                             )}

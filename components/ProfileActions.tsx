@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Loader2, Edit } from "lucide-react";
+import { Loader2, Edit, Settings } from "lucide-react";
 
 export default function ProfileActions({
     isOwnProfile,
@@ -29,9 +29,8 @@ export default function ProfileActions({
                         Blocked Users
                     </Button>
 
-                    <Button onClick={openEdit} variant="outline" className="flex-1">
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit
+                    <Button onClick={openEdit} variant="outline">
+                        <Settings />
                     </Button>
                 </>
             ) : (

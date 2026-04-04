@@ -11,12 +11,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { formatDistanceToNow } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MediaGrid from "./MediaGrid";
 import CommentSection from "./CommentSection";
 import { redirect } from "next/navigation";
 import type { Post } from "@/app/types";
 import { User } from "@/app/generated/prisma/client";
+import {
+    Avatar,
+    AvatarFallback,
+    AvatarGroup,
+    AvatarGroupCount,
+    AvatarImage,
+} from "@/components/ui/avatar";
 
 type Props = {
     post: Post;
@@ -51,11 +58,14 @@ export default function PostComponent({ post, user }: Props) {
     return (
         <Card className="w-full max-w-2xl mx-auto">
             <CardHeader className="flex flex-row items-center gap-3 space-y-0 cursor-pointer" onClick={() => redirect(`/user/${post.author.id}`)}>
-                <img
-                    src={post.author.image}
-                    className="w-10 h-10 rounded-full object-cover"
-                    alt="author"
-                />
+                <Avatar
+                    className="cursor-pointer"
+                >
+                    <AvatarImage src={post.author.image} />
+                    <AvatarFallback>
+                        {post.author.name?.[0]}
+                    </AvatarFallback>
+                </Avatar>
                 <div className="flex flex-col">
                     <span className="font-semibold text-sm">
                         {post.author.name}
@@ -80,14 +90,38 @@ export default function PostComponent({ post, user }: Props) {
                 )}
             </CardContent>
 
-            <CardFooter className="flex justify-between">
-                <div className="flex gap-4">
+            <CardFooter className="flex flex-col gap-2 items-start">
+                {likes.length > 0 && (
+                    <div className="flex items-center justify-between w-full">
+                        <AvatarGroup>
+                            {likes.slice(0, 5).map((like) => (
+                                <Avatar key={like.id} className="w-6 h-6">
+                                    <AvatarImage src={like.user.image} />
+                                    <AvatarFallback>
+                                        {like.user.name?.[0]}
+                                    </AvatarFallback>
+                                </Avatar>
+                            ))}
+
+                            {likes.length > 5 && (
+                                <AvatarGroupCount className="text-xs h-6 w-6">
+                                    +{likes.length - 5}
+                                </AvatarGroupCount>
+                            )}
+                        </AvatarGroup>
+
+                        <span className="text-xs text-muted-foreground">
+                            {likes.length} like{likes.length > 1 && "s"}
+                        </span>
+                    </div>
+                )}
+                <div className="flex w-full">
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={handleLike}
                         disabled={isLiking}
-                        className="flex items-center gap-2 cursor-pointer"
+                        className="flex-1 flex items-center justify-center gap-2 cursor-pointer"
                     >
                         {isLiking ? (
                             <Spinner />
@@ -99,8 +133,8 @@ export default function PostComponent({ post, user }: Props) {
                                     }`}
                             />
                         )}
-                        <span className="text-sm">{likes.length}</span>
                     </Button>
+
                     <CommentSection
                         postId={post.id}
                     />

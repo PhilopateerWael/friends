@@ -169,7 +169,7 @@ export default function ChatView({
                         disabled={sending}
                         className="min-w-[70px]"
                     >
-                        {sending ? "..." : "Send"}
+                        Send
                     </Button>
                 </div>
             </div>

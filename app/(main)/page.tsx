@@ -28,7 +28,7 @@ export default function Home() {
 
     return (
         <div className="flex flex-col px-3 py-6 gap-4 items-center">
-            <UsersSearch action={(x) => redirect("/user/" + x.id)} />
+            <UsersSearch isAbsolute={true} action={(x) => redirect("/user/" + x.id)} actionLoading={false} />
             <PostWriter setFeed={setFeed} />
             {loading ?
                 [1, 2, 3].map((i) => (

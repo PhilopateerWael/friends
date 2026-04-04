@@ -16,11 +16,13 @@ export default function BlockedUsersModal({
     onClose,
     blocks,
     onUnblock,
+    actionLoading,
 }: {
     open: boolean;
     onClose: () => void;
     blocks: UserPopulated["blocks"];
     onUnblock: (blockedId: string) => void;
+    actionLoading: boolean;
 }) {
     return (
         <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
@@ -43,6 +45,7 @@ export default function BlockedUsersModal({
                                             variant="destructive"
                                             onClick={() => onUnblock(b.blockedId)}
                                             className="cursor-pointer"
+                                            disabled={actionLoading}
                                         >
                                             Unblock
                                         </Button>
