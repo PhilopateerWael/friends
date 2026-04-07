@@ -39,7 +39,7 @@ export default function page() {
         const result = await signInAction(data.email, data.password);
 
         if (!result.success) {
-            toast.error(result?.message || "Failed to sign in");
+            toast.error("Failed to sign in");
         } else {
             window.location.href = "/";
         }

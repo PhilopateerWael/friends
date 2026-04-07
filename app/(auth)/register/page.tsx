@@ -24,14 +24,9 @@ import { Input } from "@/components/ui/input"
 import { signUpSchema } from "@/lib/requestSchemas"
 import Link from "next/link";
 import { signUpAction } from "../../actions/auth"
-import { AppContext } from "../../Providers"
-import { useContext } from "react"
 import { Spinner } from "@/components/ui/spinner"
 
 export default function page() {
-    const { state, dispatch } = useContext(AppContext);
-
-
     const { formState: { isSubmitting }, ...form } = useForm<z.infer<typeof signUpSchema>>({
         resolver: zodResolver(signUpSchema),
         defaultValues: {
@@ -45,7 +40,7 @@ export default function page() {
         const result = await signUpAction(data.email, data.password, data.name);
 
         if (!result.success) {
-            toast.error(result?.message || "Failed to create account");
+            toast.error("Failed to create account");
         } else {
             window.location.href = "/";
         }
