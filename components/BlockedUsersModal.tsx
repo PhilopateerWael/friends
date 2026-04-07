@@ -43,13 +43,12 @@ export default function BlockedUsersModal() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="destructive" className="flex-1">
+                <Button variant="destructive" className="flex-1 cursor-pointer">
                     Blocked Users
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="max-w-md h-[70vh] flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
-
+            <DialogContent className="h-[70vh] flex flex-col p-0 pb-6">
                 <DialogTitle className="px-6 pt-4 shrink-0">
                     Blocked Users
                 </DialogTitle>

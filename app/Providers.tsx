@@ -3,12 +3,13 @@
 import * as Ably from "ably";
 import { createContext, useReducer, Dispatch, useContext, useEffect, useState } from "react";
 import { getMeAction, getAblyTokenAction } from "./actions/auth";
-import { Message, UserPopulated } from "./types";
+import { Chat, Message, UserPopulated } from "./types";
 
 
 type State = {
     user: UserPopulated | null;
     messages: Message[];
+    oppenedChatId: string
 };
 
 type Action =
@@ -16,7 +17,8 @@ type Action =
     | { type: "setMessages"; payload: Message[] }
     | { type: "addMessage"; payload: Message }
     | { type: "clearMessages" }
-    | { type: "addChat", payload: UserPopulated["participant"][0] };
+    | { type: "addChat", payload: Chat }
+    | { type: "setOpenedChatId", payload: string };
 
 function reducer(state: State, action: Action): State {
     switch (action.type) {
@@ -24,13 +26,22 @@ function reducer(state: State, action: Action): State {
             return { ...state, user: action.payload };
         case "addChat":
             if (!state.user) return state;
+            const chat = action.payload;
+
+            const participant = chat.participants.find(
+                (p) => p.userId === state.user?.id
+            );
+
             return {
                 ...state,
                 user: {
                     ...state.user,
                     participant: [
                         ...state.user.participant,
-                        action.payload,
+                        {
+                            ...participant!,
+                            chat,
+                        }
                     ],
                 },
             };
@@ -41,7 +52,7 @@ function reducer(state: State, action: Action): State {
             };
 
         case "addMessage":
-            if (state.messages.length && state.messages[0].chatId == action.payload.chatId) {
+            if (state.oppenedChatId == action.payload.chatId) {
                 return {
                     ...state,
                     messages: [...state.messages, action.payload],
@@ -54,6 +65,11 @@ function reducer(state: State, action: Action): State {
                 ...state,
                 messages: [],
             };
+        case "setOpenedChatId":
+            return {
+                ...state,
+                oppenedChatId: action.payload
+            }
         default:
             return state;
     }
@@ -63,7 +79,7 @@ export const AppContext = createContext<{
     state: State;
     dispatch: Dispatch<Action>;
 }>({
-    state: { user: null, messages: [] },
+    state: { user: null, messages: [], oppenedChatId: "" },
     dispatch: () => null,
 });
 
@@ -71,6 +87,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     const [state, dispatch] = useReducer(reducer, {
         user: null,
         messages: [],
+        oppenedChatId: "",
     }); const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -90,7 +107,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                 dispatch({ type: "setUser", payload: user });
                 setAbly(token, user);
             }
-            
+
             setLoading(false);
         }
 

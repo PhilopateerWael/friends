@@ -12,8 +12,9 @@ import { useAppContext } from "@/app/Providers";
 import { User } from "@/app/generated/prisma/client";
 import UsersSearch from "./UsersSearch";
 import { toast } from "sonner";
+import { Chat } from "@/app/types";
 
-export default function NewChatModal({ open, onClose, setCurrentChat }: any) {
+export default function NewChatModal({ open, onClose }: any) {
     const { state, dispatch } = useAppContext();
 
     const [loading, setLoading] = useState(false);
@@ -24,24 +25,17 @@ export default function NewChatModal({ open, onClose, setCurrentChat }: any) {
         setLoading(true);
 
         const { success, data } = await createChatAction(user.id);
-        const chat = data!
+        const chat: Chat = data!
 
         if (success) {
-            const participant = chat.participants.find(
-                (p) => p.userId === user.id
-            );
-
             if (!chats.find((c) => c.chatId === chat.id)) {
                 dispatch({
                     type: "addChat",
-                    payload: {
-                        ...participant!,
-                        chat,
-                    },
+                    payload: chat
                 });
             }
 
-            setCurrentChat(chat);
+            dispatch({ type: "setOpenedChatId", payload: chat.id });
         } else {
             toast.error("Failed to create chat.");
         }
@@ -51,7 +45,7 @@ export default function NewChatModal({ open, onClose, setCurrentChat }: any) {
 
     return (
         <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-            <DialogContent className="max-w-md flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
+            <DialogContent className="max-w-md flex flex-col p-0 h-fit max-md:max-h-screen max-sm:rounded-none max-md:max-w-screen max-md:overflow-y-scroll">
 
                 <div className="px-6 pt-4 space-y-1">
                     <DialogTitle>New Chat</DialogTitle>

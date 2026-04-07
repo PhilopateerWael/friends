@@ -32,14 +32,14 @@ export default function Page() {
         async function fetchProfile() {
             const { success, data } = await getProfileAction(userId);
 
-            if (success) {
+            if (success && data?.user) {
                 setUser(data!.user);
                 setCanSeePosts(data!.canSeePosts);
                 setPosts(data!.posts);
                 setLikedPosts(data!.likedPosts);
                 setFollowersList(data!.followersList.map(f => f.follower));
                 setFollowingsList(data!.followingsList.map(f => f.following));
-            }else{
+            } else {
                 redirect("/")
             }
 
@@ -50,7 +50,7 @@ export default function Page() {
     }, [userId]);
 
     if (loading) return <ProfileSkeleton />;
-    
+
     if (!user) return <div className="p-4 text-center">User not found</div>;
 
     const truthSource = state.user?.id === user.id ? state.user : user;
@@ -60,12 +60,12 @@ export default function Page() {
 
             <ProfileHeader followersList={followersList} follwingList={followingsList} user={truthSource} />
             <ProfileActions user={truthSource} />
-           
+
             {canSeePosts ? (
                 <Tabs defaultValue="posts">
-                    <TabsList className="grid grid-cols-2 w-full">
-                        <TabsTrigger value="posts">Posts</TabsTrigger>
-                        <TabsTrigger value="liked">Liked</TabsTrigger>
+                    <TabsList className="grid grid-cols-2 w-full gap-2">
+                        <TabsTrigger value="posts" className="cursor-pointer">Posts</TabsTrigger>
+                        <TabsTrigger value="liked" className="cursor-pointer">Liked</TabsTrigger>
                     </TabsList>
 
                     <Separator className="my-2" />
@@ -115,6 +115,7 @@ export default function Page() {
                     </CardContent>
                 </Card>
             )}
+            <div className="h-64"></div>
         </div>
     );
 }

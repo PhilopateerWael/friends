@@ -24,7 +24,7 @@ export default function FollowRequestsModal() {
 
     const handleAccept = async (userId: string) => {
         setLoadingId(userId);
-        
+
         const { success } = await acceptFollowRequestAction(userId);
 
         if (success) {
@@ -71,13 +71,13 @@ export default function FollowRequestsModal() {
         <Dialog>
             <DialogTrigger asChild>
                 {state.user?.privacy === "PRIVATE" && (
-                    <Button className="flex-1">
+                    <Button className="flex-1 cursor-pointer">
                         Follow Requests
                     </Button>
                 )}
             </DialogTrigger>
 
-            <DialogContent className="max-w-md h-[70vh] flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
+            <DialogContent className="h-[70vh] flex flex-col p-0 pb-6">
 
                 <DialogTitle className="px-6 pt-4 shrink-0">
                     Follow Requests

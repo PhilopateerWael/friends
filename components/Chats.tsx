@@ -12,18 +12,16 @@ import { Plus } from "lucide-react";
 import { Chat } from "@/app/types";
 
 export default function ChatList() {
-    const { state } = useAppContext();
-
-    const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+    const { state, dispatch } = useAppContext();
     const [openNewChat, setOpenNewChat] = useState(false);
 
     const chats = state.user?.participant || [];
 
-    if (selectedChat) {
+    if (state.oppenedChatId) {
         return (
             <ChatView
-                chat={selectedChat}
-                onBack={() => setSelectedChat(null)}
+                chat={chats.find((c) => c.chatId === state.oppenedChatId)?.chat!}
+                onBack={() => dispatch({ type: "setOpenedChatId", payload: "" })}
             />
         );
     }
@@ -45,7 +43,7 @@ export default function ChatList() {
                             <Card
                                 key={chat.id}
                                 className="cursor-pointer hover:bg-muted transition py-2"
-                                onClick={() => setSelectedChat(chat)}
+                                onClick={() => dispatch({ type: "setOpenedChatId", payload: chat.id })}
                             >
                                 <CardContent className="flex items-center gap-3 px-3">
                                     <Avatar>
@@ -80,7 +78,6 @@ export default function ChatList() {
             <NewChatModal
                 open={openNewChat}
                 onClose={() => setOpenNewChat(false)}
-                setCurrentChat={setSelectedChat}
             />
         </div>
     );

@@ -84,7 +84,7 @@ export default function ProfileActions({
     };
 
     return (
-        <div className="mt-5 w-full flex gap-3 flex-wrap">
+        <div className="mt-5 w-full flex gap-3 flex-wrap max-sm:flex-col">
             {isOwnProfile ? (
                 <>
                     {state.user?.privacy === "PRIVATE" && (
@@ -100,7 +100,7 @@ export default function ProfileActions({
                     <Button
                         onClick={handleFollow}
                         disabled={followLoading}
-                        className="flex-1"
+                        className="flex-1 cursor-pointer"
                     >
                         {followLoading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -117,7 +117,7 @@ export default function ProfileActions({
                         variant="destructive"
                         onClick={handleBlock}
                         disabled={blockLoading}
-                        className="flex-1"
+                        className="flex-1 cursor-pointer"
                     >
                         {blockLoading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />

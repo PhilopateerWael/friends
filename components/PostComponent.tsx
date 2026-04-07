@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/avatar";
 import { useAppContext } from "@/app/Providers";
 import { toast } from "sonner";
+import UsersListModal from "./UsersListModal";
 
 type Props = {
     post: Post;
@@ -115,9 +116,11 @@ export default function PostComponent({ post }: Props) {
                             )}
                         </AvatarGroup>
 
-                        <span className="text-xs text-muted-foreground">
-                            {likes.length} like{likes.length > 1 && "s"}
-                        </span>
+                        <UsersListModal users={likes.map((like) => like.user)} title="Likes">
+                            <span className="text-xs text-muted-foreground hover:underline cursor-pointer">
+                                {likes.length} like{likes.length > 1 && "s"}
+                            </span>
+                        </UsersListModal>
                     </div>
                 )}
                 <div className="flex w-full">

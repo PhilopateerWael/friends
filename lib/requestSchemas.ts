@@ -5,7 +5,7 @@ const nameSchema = z.string().trim().min(3).max(20)
 
 export const signUpSchema = z.object({
     email: z.email(),
-    password: z.string().min(6),
+    password: z.string().min(8),
     name: nameSchema
 });
 
@@ -44,4 +44,9 @@ export const editProfileSchema = z.object({
     bio: z.string().max(160).optional(),
     image : imageSchema.optional().nullable(),
     privacy : z.enum(Privacy).optional()
+});
+
+export const changePasswordSchema = z.object({
+    oldPassword: z.string().min(8),
+    newPassword: z.string().min(8),
 });

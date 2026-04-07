@@ -12,7 +12,10 @@ export async function ValidatedAction<T extends z.ZodTypeAny, R>(schema: T, inpu
     const parsed = schema.safeParse(input);
 
     if (!parsed.success) {
-        throw new Error("Invalid input")
+        return {
+            success: false,
+            data: null
+        }
     }
 
     try {
@@ -35,7 +38,10 @@ export async function ValidatedActionWithAuth<T extends z.ZodTypeAny, R>(schema:
     const parsed = schema.safeParse(input);
 
     if (!parsed.success) {
-        throw new Error("Invalid input");
+        return {
+            success: false,
+            data: null
+        }
     }
 
     const user = await getUser();
@@ -53,6 +59,7 @@ export async function ValidatedActionWithAuth<T extends z.ZodTypeAny, R>(schema:
         };
     } catch (error) {
         console.error("Action failed:", error);
+
         return {
             success: false,
             data: null

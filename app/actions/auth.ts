@@ -3,8 +3,8 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { AuthenticatedAction, ValidatedAction } from "../util/Middleware";
-import { signInSchema, signUpSchema } from "@/lib/requestSchemas";
+import { AuthenticatedAction, ValidatedAction, ValidatedActionWithAuth } from "../util/Middleware";
+import { changePasswordSchema, signInSchema, signUpSchema } from "@/lib/requestSchemas";
 import z from "zod";
 import { User } from "../generated/prisma/client";
 import ably from "@/lib/ably";
@@ -35,6 +35,10 @@ export async function getMeAction() {
 
 export async function getAblyTokenAction() {
     return await AuthenticatedAction(getAblyToken);
+}
+
+export async function changePasswordAction(oldPassword: string, newPassword: string) {
+    return await ValidatedActionWithAuth(changePasswordSchema, { oldPassword, newPassword }, changePassword);
 }
 
 async function getMe(user: User): Promise<{ user: UserPopulated | null; token: TokenDetails }> {
@@ -82,5 +86,15 @@ async function signUp(args: z.infer<typeof signUpSchema>) {
             password: args.password,
             name: args.name,
         }
+    });
+}
+
+async function changePassword(user: User, args: { oldPassword: string, newPassword: string }) {
+    await auth.api.changePassword({
+        body: {
+            currentPassword: args.oldPassword,
+            newPassword: args.newPassword,
+        },
+        headers: await headers()
     });
 }

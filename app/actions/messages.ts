@@ -43,7 +43,7 @@ async function createmessage(user: User, args: z.infer<typeof messageSchema>) {
 
         const targetUser = await prisma.user.findUnique({
             where: {
-                id: otherUser?.id,
+                id: otherUser?.userId,
                 blocks: { none: { blockedId: user.id } },
                 blockedBy: { none: { userId: user.id } }
             },

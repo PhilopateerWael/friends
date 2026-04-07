@@ -27,7 +27,7 @@ export default function UsersListModal({
                 {children}
             </DialogTrigger>
 
-            <DialogContent className="max-w-md h-[70vh] flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
+            <DialogContent className="h-[70vh] flex flex-col p-0 pb-6">
                 <DialogTitle className="px-6 pt-4 shrink-0">
                     {title}
                 </DialogTitle>
@@ -36,7 +36,9 @@ export default function UsersListModal({
                     <div className="space-y-4">
                         {users.length ? (
                             users.map((u) => (
-                                <UserRow key={u.id} user={u} />
+                                <>
+                                    <UserRow key={u.id} user={u} />
+                                </>
                             ))
                         ) : (
                             <p className="text-muted-foreground text-center">
