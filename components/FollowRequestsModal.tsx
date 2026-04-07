@@ -4,30 +4,79 @@ import {
     Dialog,
     DialogContent,
     DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 
 import { ScrollArea } from "./ui/scroll-area";
 import UserRow from "./UserRow";
 import { Button } from "@/components/ui/button";
-import { UserPopulated } from "@/app/types";
+import { useState } from "react";
+import { useAppContext } from "@/app/Providers";
+import { acceptFollowRequestAction, rejectFollowRequestAction } from "@/app/actions/users";
+import { toast } from "sonner";
 
-export default function FollowRequestsModal({
-    open,
-    onClose,
-    requests,
-    onAccept,
-    onReject,
-    actionLoading,
-}: {
-    open: boolean;
-    onClose: () => void;
-    requests: UserPopulated["followers"];
-    onAccept: (requestId: string) => void;
-    onReject: (requestId: string) => void;
-    actionLoading: boolean;
-}) {
+export default function FollowRequestsModal() {
+
+    const [loadingId, setLoadingId] = useState<string | null>(null);
+    const { state, dispatch } = useAppContext();
+
+    const users = state.user?.followers.filter((f) => f.status === "PENDING").map((f) => f.follower) || [];
+
+    const handleAccept = async (userId: string) => {
+        setLoadingId(userId);
+        
+        const { success } = await acceptFollowRequestAction(userId);
+
+        if (success) {
+            dispatch({
+                type: "setUser",
+                payload: {
+                    ...state.user!,
+                    followers: state.user!.followers.map(f => {
+                        if (f.followerId === userId) {
+                            return { ...f, status: "ACCEPTED" }
+                        }
+                        return f;
+                    })
+                }
+            })
+        } else {
+            toast.error("Failed to accept follow request")
+        }
+
+        setLoadingId(null);
+    };
+
+    const handleReject = async (userId: string) => {
+        setLoadingId(userId);
+
+        const { success } = await rejectFollowRequestAction(userId);
+
+        if (success) {
+            dispatch({
+                type: "setUser",
+                payload: {
+                    ...state.user!,
+                    followers: state.user!.followers.filter(f => f.followerId !== userId)
+                }
+            })
+        } else {
+            toast.error("Failed to reject follow request")
+        }
+
+        setLoadingId(null);
+    };
+
     return (
-        <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+        <Dialog>
+            <DialogTrigger asChild>
+                {state.user?.privacy === "PRIVATE" && (
+                    <Button className="flex-1">
+                        Follow Requests
+                    </Button>
+                )}
+            </DialogTrigger>
+
             <DialogContent className="max-w-md h-[70vh] flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
 
                 <DialogTitle className="px-6 pt-4 shrink-0">
@@ -36,27 +85,27 @@ export default function FollowRequestsModal({
 
                 <ScrollArea className="flex-1 min-h-0 px-6">
                     <div className="space-y-4">
-                        {requests.length ? (
-                            requests.map((req) => (
+                        {users.length ? (
+                            users.map((user) => (
                                 <UserRow
-                                    key={req.id}
-                                    user={req.follower}
+                                    key={user.id}
+                                    user={user}
                                     action={
                                         <div className="flex gap-2">
                                             <Button
                                                 size="sm"
-                                                onClick={() => onAccept(req.id)}
+                                                onClick={() => handleAccept(user.id)}
                                                 className="cursor-pointer"
-                                                disabled={actionLoading}
+                                                disabled={loadingId === user.id}
                                             >
                                                 Accept
                                             </Button>
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                onClick={() => onReject(req.id)}
+                                                onClick={() => handleReject(user.id)}
                                                 className="cursor-pointer"
-                                                disabled={actionLoading}
+                                                disabled={loadingId === user.id}
                                             >
                                                 Reject
                                             </Button>

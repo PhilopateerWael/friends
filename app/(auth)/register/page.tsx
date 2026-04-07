@@ -37,12 +37,12 @@ export default function page() {
         defaultValues: {
             email: "",
             password: "",
-            username: "",
+            name: "",
         },
     })
 
     async function onSubmit(data: z.infer<typeof signUpSchema>) {
-        const result = await signUpAction(data.email, data.password, data.username);
+        const result = await signUpAction(data.email, data.password, data.name);
 
         if (!result.success) {
             toast.error(result?.message || "Failed to create account");
@@ -64,18 +64,18 @@ export default function page() {
                     <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
                         <FieldGroup>
                             <Controller
-                                name="username"
+                                name="name"
                                 control={form.control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel htmlFor={field.name}>
-                                            Username
+                                            name
                                         </FieldLabel>
                                         <Input
                                             {...field}
                                             id={field.name}
                                             aria-invalid={fieldState.invalid}
-                                            placeholder="Enter your username"
+                                            placeholder="Enter your name"
                                         />
                                         {fieldState.invalid && (
                                             <FieldError errors={[fieldState.error]} />

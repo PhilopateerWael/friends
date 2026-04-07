@@ -52,23 +52,20 @@ export default function PostWriter({ setFeed }: { setFeed: React.Dispatch<React.
             return;
         }
 
-        try {
-            const response = await createPostAction(text, media.map(m => m.file));
+        const response = await createPostAction(text, media.map(m => m.file));
 
-            if (response.success) {
-                setText("");
-                setMedia([]);
-                toast.success("Post created successfully!");
-                setFeed((prev) => [response.post, ...prev]);
-            } else {
-                toast.error("Failed to create post: " + response.error);
-            }
-            setLoading(false);
-        } catch (error) {
-            toast.error("An error occurred while creating the post.");
-        } finally {
-            setLoading(false);
+        if (response.success) {
+            setText("");
+            setMedia([]);
+
+            toast.success("Post created successfully!");
+
+            setFeed((prev) => [response.data, ...prev]);
+        } else {
+            toast.error("Failed to create post.");
         }
+        
+        setLoading(false);
     };
 
     return (

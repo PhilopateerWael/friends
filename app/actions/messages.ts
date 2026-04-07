@@ -41,12 +41,24 @@ async function createmessage(user: User, args: z.infer<typeof messageSchema>) {
 
         const otherUser = chat.participants.find((p) => p.userId !== user.id);
 
+        const targetUser = await prisma.user.findUnique({
+            where: {
+                id: otherUser?.id,
+                blocks: { none: { blockedId: user.id } },
+                blockedBy: { none: { userId: user.id } }
+            },
+        });
+
+        if (!targetUser || targetUser.id === user.id) {
+            throw new Error("User not found");
+        }
+
         if (!chat.participants.some(p => p.userId === user.id)) {
             throw new Error("User not part of the chat");
         }
 
         if (!otherUser) {
-            throw new Error("I dont think we can reach this case but like typescript is making me paranoid of using ! anymore");
+            throw new Error("I dont think we can reach this case but like typescript is making me paranoid");
         }
 
         let uploadedMedia: { url: string; type: MediaType }[] = [];
@@ -84,7 +96,7 @@ async function createChat(user: User, args: z.infer<typeof targetSchema>) {
         },
     });
 
-    if (!targetUser) {
+    if (!targetUser || targetUser.id === user.id) {
         throw new Error("User not found");
     }
 
@@ -108,8 +120,13 @@ async function createChat(user: User, args: z.infer<typeof targetSchema>) {
                         { userId: args.targetId }
                     ]
                 }
-            }, include: chatIncludes
+            },
+            include: chatIncludes
         });
+
+        const targetChannel = ably.channels.get(`user-${targetUser.id}`);
+
+        await targetChannel.publish("chat", chat)
     }
 
     return chat;

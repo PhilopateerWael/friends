@@ -1,9 +1,18 @@
-"use client";
+import { User } from "@/app/generated/prisma/browser";
+import UsersListModal from "./UsersListModal";
+import { Card, CardContent } from "./ui/card";
+import { AvatarImage, Avatar, AvatarFallback } from "./ui/avatar";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-
-export default function ProfileHeader({ user, followersCount, followingCount, onFollowersClick, onFollowingClick }: any) {
+export default function ProfileHeader({
+    user,
+    followersList,
+    follwingList,
+}: {
+    user: User;
+    followersList: User[];
+    follwingList: User[];
+}) {
+    
     return (
         <Card className="overflow-hidden border-none shadow-lg">
             <CardContent className="flex flex-col items-center">
@@ -25,16 +34,33 @@ export default function ProfileHeader({ user, followersCount, followingCount, on
                 )}
 
                 <div className="flex gap-10 mt-4">
-                    <div onClick={onFollowersClick} className="cursor-pointer text-center">
-                        <div className="font-semibold">{followersCount}</div>
-                        <div className="text-xs">Followers</div>
-                    </div>
-                    <div onClick={onFollowingClick} className="cursor-pointer text-center">
-                        <div className="font-semibold">{followingCount}</div>
-                        <div className="text-xs">Following</div>
-                    </div>
+
+                    <UsersListModal
+                        title="Followers"
+                        users={followersList}
+                    >
+                        <div className="cursor-pointer text-center">
+                            <div className="font-semibold">
+                                {followersList.length}
+                            </div>
+                            <div className="text-xs">Followers</div>
+                        </div>
+                    </UsersListModal>
+
+                    <UsersListModal
+                        title="Following"
+                        users={follwingList}
+                    >
+                        <div className="cursor-pointer text-center">
+                            <div className="font-semibold">
+                                {follwingList.length}
+                            </div>
+                            <div className="text-xs">Following</div>
+                        </div>
+                    </UsersListModal >
+
                 </div>
             </CardContent>
-        </Card>
+        </Card >
     );
 }

@@ -11,6 +11,7 @@ import { createChatAction } from "@/app/actions/messages";
 import { useAppContext } from "@/app/Providers";
 import { User } from "@/app/generated/prisma/client";
 import UsersSearch from "./UsersSearch";
+import { toast } from "sonner";
 
 export default function NewChatModal({ open, onClose, setCurrentChat }: any) {
     const { state, dispatch } = useAppContext();
@@ -22,29 +23,30 @@ export default function NewChatModal({ open, onClose, setCurrentChat }: any) {
     async function handleCreate(user: User) {
         setLoading(true);
 
-        try {
-            const chat = await createChatAction(user.id);
+        const { success, data } = await createChatAction(user.id);
+        const chat = data!
+
+        if (success) {
             const participant = chat.participants.find(
                 (p) => p.userId === user.id
             );
 
             if (!chats.find((c) => c.chatId === chat.id)) {
-                if (!participant) return;
-
                 dispatch({
                     type: "addChat",
                     payload: {
-                        ...participant,
+                        ...participant!,
                         chat,
                     },
                 });
             }
 
             setCurrentChat(chat);
-            onClose();
-        } finally {
-            setLoading(false);
+        } else {
+            toast.error("Failed to create chat.");
         }
+
+        onClose();
     }
 
     return (

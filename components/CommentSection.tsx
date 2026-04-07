@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { redirect } from "next/navigation"
 import type { Comment } from "@/app/types"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { CommentComponent } from "./CommentComponent"
 export default function CommentSection({
     postId,
 }: {
@@ -21,12 +22,12 @@ export default function CommentSection({
 
     useEffect(() => {
         async function fetchComments() {
-            try {
-                const result = await getCommentsForPostAction(postId);
-                setComments(result);
-            } catch {
-                toast.error("Failed to load comments")
-            }
+            const { success, data } = await getCommentsForPostAction(postId);
+
+            if (success)
+                setComments(data!);
+            else
+                toast.error("Failed to load comments");
         }
 
         fetchComments()
@@ -37,23 +38,23 @@ export default function CommentSection({
 
         setLoading(true)
 
-        try {
-            const comment = await createCommentAction(text, postId)
+        const { success, data } = await createCommentAction(text, postId)
+
+        if (success) {
+            const comment = data!
 
             setComments((prev) => [
                 {
-                    ...comment,
-                    author: comment.author,
-                    likes: [],
+                    ...(comment),
                 },
                 ...prev
             ])
-
-            setText("")
-        } catch (e) {
-            console.error(e)
+        } else {
+            toast.error("Failed to post comment")
         }
 
+
+        setText("")
         setLoading(false)
     }
 
@@ -78,7 +79,7 @@ export default function CommentSection({
                 <ScrollArea className="flex-1 min-h-0 px-6">
                     <div className="space-y-4">
                         {comments.map((comment) => (
-                            <CommentItem key={comment.id} comment={comment} />
+                            <CommentComponent key={comment.id} comment={comment} />
                         ))}
                     </div>
                 </ScrollArea>
@@ -110,39 +111,3 @@ export default function CommentSection({
     )
 }
 
-
-export function CommentItem({ comment }: { comment: Comment }) {
-    return (
-        <div className="flex gap-3">
-
-            <Avatar
-                onClick={() => redirect("/user/" + comment.author.id)}
-                className="w-8 h-8 cursor-pointer"
-            >
-                <AvatarImage src={comment.author.image} />
-                <AvatarFallback>
-                    {comment.author.name?.[0]}
-                </AvatarFallback>
-            </Avatar>
-
-            <div className="flex flex-col gap-1">
-
-                <div className="bg-muted px-3 py-2 rounded-lg text-sm">
-                    <span className="font-semibold mr-2 cursor-pointer" onClick={() => redirect("/user/" + comment.author.id)}>
-                        {comment.author.name}
-                    </span>
-
-                    {comment.content}
-                </div>
-
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>
-                        {formatDistanceToNow(new Date(comment.createdAt), {
-                            addSuffix: true,
-                        })}
-                    </span>
-                </div>
-            </div>
-        </div>
-    )
-}

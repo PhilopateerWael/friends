@@ -51,9 +51,7 @@ export default function ChatList() {
                                     <Avatar>
                                         <AvatarImage src={otherUser?.image} />
                                         <AvatarFallback>
-                                            {otherUser?.name
-                                                ?.slice(0, 2)
-                                                .toUpperCase()}
+                                            {otherUser?.name}
                                         </AvatarFallback>
                                     </Avatar>
 
@@ -72,7 +70,7 @@ export default function ChatList() {
             </div>
 
             <Button
-                className="fixed bottom-16 right-6 rounded-full shadow-lg"
+                className="fixed bottom-16 right-6 rounded-full shadow-lg cursor-pointer"
                 size="icon"
                 onClick={() => setOpenNewChat(true)}
             >

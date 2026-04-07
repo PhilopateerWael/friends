@@ -44,13 +44,11 @@ async function createPost(user: User, args: z.infer<typeof postSchema>) {
                 media: uploadedMedia ? { create: uploadedMedia } : undefined
             }, include: postIncludes
         });
-        return { success: true, post };
+
+        return post;
     } catch (error) {
         console.error("Create post failed:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Failed to create post"
-        };
+        return null;
     }
 }
 

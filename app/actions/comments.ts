@@ -1,11 +1,10 @@
 "use server"
 
 import { commentSchema, targetSchema } from "@/lib/requestSchemas"
-import { FollowStatus, MediaType, Privacy, User } from "../generated/prisma/client"
+import { User } from "../generated/prisma/client"
 import z from "zod"
 import prisma from "@/lib/prisma"
 import { ValidatedActionWithAuth } from "../util/Middleware"
-import { processMedia } from "../util/Cloudinary"
 import { canAccessPost } from "./helpers"
 
 export async function createCommentAction(content: string, postId: string) {
@@ -71,6 +70,7 @@ async function getCommentsForPost(user: User, args: z.infer<typeof targetSchema>
     const comments = await prisma.comment.findMany({
         where: {
             postId,
+            ...canAccessPost(user)
         },
         include: {
             author: true

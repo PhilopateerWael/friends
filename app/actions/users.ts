@@ -5,7 +5,7 @@ import { FollowStatus, Privacy, User } from "../generated/prisma/client"
 import z from "zod"
 import prisma from "@/lib/prisma"
 import { ValidatedActionWithAuth } from "../util/Middleware"
-import { postIncludes } from "./helpers"
+import { canAccessPost, postIncludes } from "./helpers"
 
 
 export async function searchUsersAction(targetId: string) {
@@ -39,6 +39,7 @@ export async function blockAction(targetId: string) {
 export async function unblockAction(targetId: string) {
     return await ValidatedActionWithAuth(targetSchema, { targetId }, unblockUser);
 }
+
 
 async function searchUsers(user: User, args: z.infer<typeof targetSchema>) {
     const users = await prisma.user.findMany({
@@ -80,12 +81,15 @@ async function getProfile(user: User, args: z.infer<typeof targetSchema>) {
     const isSelf = user.id === args.targetId;
 
     const profile = await getProfileUser(user.id, args.targetId);
+
     if (!profile) return null;
 
     if (isSelf) {
-        const [posts, likedPosts] = await Promise.all([
-            getPosts(args.targetId),
-            getLikedPosts(args.targetId)
+        const [posts, likedPosts, followersList, followingsList] = await Promise.all([
+            getPosts(user, args.targetId),
+            getLikedPosts(user, args.targetId),
+            getFollowersList(user, args),
+            getFollowingsList(user, args)
         ]);
 
         return {
@@ -93,6 +97,8 @@ async function getProfile(user: User, args: z.infer<typeof targetSchema>) {
             posts,
             likedPosts,
             canSeePosts: true,
+            followersList,
+            followingsList
         };
     }
 
@@ -104,12 +110,16 @@ async function getProfile(user: User, args: z.infer<typeof targetSchema>) {
             posts: [],
             likedPosts: [],
             canSeePosts,
+            followersList: await getFollowersList(user, args),
+            followingsList: await getFollowingsList(user, args)
         };
     }
 
-    const [posts, likedPosts] = await Promise.all([
-        getPosts(args.targetId),
-        getLikedPosts(args.targetId)
+    const [posts, likedPosts, followersList, followingsList] = await Promise.all([
+        getPosts(user, args.targetId),
+        getLikedPosts(user, args.targetId),
+        getFollowersList(user, args),
+        getFollowingsList(user, args)
     ]);
 
     return {
@@ -117,7 +127,49 @@ async function getProfile(user: User, args: z.infer<typeof targetSchema>) {
         posts,
         likedPosts,
         canSeePosts,
+        followersList,
+        followingsList
     };
+}
+
+async function getFollowersList(user: User, args: z.infer<typeof targetSchema>) {
+    return (await prisma.follow.findMany({
+        where: {
+            followingId: args.targetId,
+            status: FollowStatus.ACCEPTED,
+            follower: {
+                blockedBy: {
+                    none: { userId: user.id }
+                },
+                blocks: {
+                    none: { blockedId: user.id }
+                }
+            }
+        },
+        include: {
+            follower: true
+        }
+    }));
+}
+
+async function getFollowingsList(user: User, args: z.infer<typeof targetSchema>) {
+    return (await prisma.follow.findMany({
+        where: {
+            followerId: args.targetId,
+            status: FollowStatus.ACCEPTED,
+            following: {
+                blockedBy: {
+                    none: { userId: user.id }
+                },
+                blocks: {
+                    none: { blockedId: user.id }
+                }
+            }
+        },
+        include: {
+            following: true
+        }
+    }));
 }
 
 async function getProfileUser(currentUserId: string, targetId: string) {
@@ -130,13 +182,6 @@ async function getProfileUser(currentUserId: string, targetId: string) {
             blocks: {
                 none: { blockedId: currentUserId }
             }
-        }, include: {
-            followers: {
-                include: { follower: true }
-            },
-            following: {
-                include: { following: true }
-            },
         }
     });
 }
@@ -161,23 +206,25 @@ async function checkCanSeePosts(
     return !!isFollower;
 }
 
-async function getPosts(userId: string) {
+async function getPosts(user: User, userId: string) {
     return prisma.post.findMany({
         where: {
             author: { id: userId }
+            , ...canAccessPost(user)
         },
         include: postIncludes
     });
 }
 
-async function getLikedPosts(userId: string) {
+async function getLikedPosts(user: User, userId: string) {
     return prisma.post.findMany({
         where: {
             likes: {
                 some: {
                     userId
                 }
-            }
+            },
+            ...canAccessPost(user)
         },
         include: postIncludes
     });
@@ -198,7 +245,8 @@ async function followUser(user: User, args: z.infer<typeof targetSchema>) {
                 target.privacy === Privacy.PRIVATE
                     ? FollowStatus.PENDING
                     : FollowStatus.ACCEPTED
-        }, include: {
+        },
+        include: {
             following: true
         }
     });
@@ -228,6 +276,22 @@ async function rejectFollow(user: User, args: z.infer<typeof targetSchema>) {
 
 async function blockUser(user: User, args: z.infer<typeof targetSchema>) {
     if (user.id === args.targetId) throw new Error("Cannot block yourself idiot");
+
+    await prisma.follow.deleteMany({
+        where: {
+            OR: [
+                {
+                    followerId: user.id,
+                    followingId: args.targetId
+                },
+                {
+                    followerId: args.targetId,
+                    followingId: user.id
+                }
+            ]
+        }
+    });
+
     return prisma.block.create({
         data: {
             userId: user.id,

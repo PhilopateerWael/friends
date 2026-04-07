@@ -14,7 +14,7 @@ import { UserPopulated } from "../types";
 import { populatedUserIncludes } from "./helpers";
 
 export async function signUpAction(email: string, password: string, name: string) {
-    return await ValidatedAction(signUpSchema, { email, password, username: name }, signUp);
+    return await ValidatedAction(signUpSchema, { email, password, name: name }, signUp);
 }
 
 export async function signInAction(email: string, password: string) {
@@ -33,7 +33,7 @@ export async function getMeAction() {
     return await AuthenticatedAction(getMe);
 }
 
-export async function getAblyTokenAction(): Promise<TokenDetails> {
+export async function getAblyTokenAction() {
     return await AuthenticatedAction(getAblyToken);
 }
 
@@ -67,38 +67,20 @@ async function getAblyToken(user: User): Promise<TokenDetails> {
 }
 
 async function signIn(args: z.infer<typeof signInSchema>) {
-    try {
-        await auth.api.signInEmail({
-            body: {
-                email: args.email,
-                password: args.password,
-            }
-        });
-
-        return { success: true };
-    } catch (error) {
-        return {
-            success: false,
-            message: error instanceof Error ? error.message : "Invalid credentials"
-        };
-    }
+    await auth.api.signInEmail({
+        body: {
+            email: args.email,
+            password: args.password,
+        }
+    });
 }
 
 async function signUp(args: z.infer<typeof signUpSchema>) {
-    try {
-        await auth.api.signUpEmail({
-            body: {
-                email: args.email,
-                password: args.password,
-                name: args.username
-            }
-        });
-
-        return { success: true };
-    } catch (error) {
-        return {
-            success: false,
-            message: error instanceof Error ? error.message : "Failed to create account"
-        };
-    }
+    await auth.api.signUpEmail({
+        body: {
+            email: args.email,
+            password: args.password,
+            name: args.name,
+        }
+    });
 }

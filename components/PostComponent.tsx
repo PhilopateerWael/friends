@@ -24,13 +24,16 @@ import {
     AvatarGroupCount,
     AvatarImage,
 } from "@/components/ui/avatar";
+import { useAppContext } from "@/app/Providers";
+import { toast } from "sonner";
 
 type Props = {
     post: Post;
-    user: User;
 };
 
-export default function PostComponent({ post, user }: Props) {
+export default function PostComponent({ post }: Props) {
+    const { state, dispatch } = useAppContext();
+    const user = state.user as User;
     const [likes, setLikes] = useState(post.likes);
     const [isLiking, setIsLiking] = useState(false);
     const isLiked = likes.some((l) => l.user.id === user.id);
@@ -40,19 +43,21 @@ export default function PostComponent({ post, user }: Props) {
 
         setIsLiking(true);
 
-        try {
-            if (isLiked) {
-                await unlikePostAction(post.id);
+        if (isLiked) {
+            const { success } = await unlikePostAction(post.id);
+            if (success)
                 setLikes((prev) => prev.filter((l) => l.user.id !== user.id));
-            } else {
-                const like = await likePostAction(post.id);
-                setLikes((prev) => [...prev, like]);
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLiking(false);
+            else
+                toast.error("Failed to unlike post.");
+        } else {
+            const { success, data } = await likePostAction(post.id);
+            if (success)
+                setLikes((prev) => [...prev, data!]);
+            else
+                toast.error("Failed to like post.");
         }
+
+        setIsLiking(false);
     }
 
     return (

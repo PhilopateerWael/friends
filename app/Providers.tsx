@@ -3,8 +3,7 @@
 import * as Ably from "ably";
 import { createContext, useReducer, Dispatch, useContext, useEffect, useState } from "react";
 import { getMeAction, getAblyTokenAction } from "./actions/auth";
-import { Block, Chat, Message, UserPopulated } from "./types";
-import { Privacy } from "./generated/prisma/enums";
+import { Message, UserPopulated } from "./types";
 
 
 type State = {
@@ -17,98 +16,12 @@ type Action =
     | { type: "setMessages"; payload: Message[] }
     | { type: "addMessage"; payload: Message }
     | { type: "clearMessages" }
-    | { type: "addFollow"; payload: UserPopulated["following"][0] }
-    | { type: "removeFollow"; payload: string }
-    | { type: "addBlock"; payload: Block }
-    | { type: "removeBlock"; payload: string }
-    | {
-        type: "updateProfile";
-        payload: {
-            name?: string;
-            bio?: string;
-            privacy?: Privacy;
-        }
-    }
-    | { type: "updateFollowers"; payload: UserPopulated["followers"] }
-    | { type: "updateFollowings"; payload: UserPopulated["following"] }
     | { type: "addChat", payload: UserPopulated["participant"][0] };
 
 function reducer(state: State, action: Action): State {
     switch (action.type) {
         case "setUser":
             return { ...state, user: action.payload };
-
-        case "addFollow":
-            if (!state.user) return state;
-            return {
-                ...state,
-                user: {
-                    ...state.user,
-                    following: [...state.user.following, action.payload],
-                },
-            };
-
-        case "removeFollow":
-            if (!state.user) return state;
-            return {
-                ...state,
-                user: {
-                    ...state.user,
-                    following: state.user.following.filter(
-                        (f) => f.followingId !== action.payload
-                    ),
-                },
-            };
-
-        case "addBlock":
-            if (!state.user) return state;
-            return {
-                ...state,
-                user: {
-                    ...state.user,
-                    blocks: [...state.user.blocks, action.payload],
-                },
-            };
-
-        case "removeBlock":
-            if (!state.user) return state;
-            return {
-                ...state,
-                user: {
-                    ...state.user,
-                    blocks: state.user.blocks.filter(
-                        (b) => b.blockedId !== action.payload
-                    ),
-                },
-            };
-        case "updateFollowers":
-            if (!state.user) return state;
-            return {
-                ...state,
-                user: {
-                    ...state.user,
-                    followers: action.payload,
-                },
-            };
-        case "updateFollowings":
-            if (!state.user) return state;
-            return {
-                ...state,
-                user: {
-                    ...state.user,
-                    following: action.payload,
-                },
-            };
-
-        case "updateProfile":
-            if (!state.user) return state;
-            return {
-                ...state,
-                user: {
-                    ...state.user,
-                    ...action.payload,
-                },
-            };
         case "addChat":
             if (!state.user) return state;
             return {
@@ -162,19 +75,23 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         async function init() {
-            try {
-                const { user, token } = await getMeAction();
-                dispatch({ type: "setUser", payload: user });
+            const { success, data } = await getMeAction();
 
-                if (user && token) {
-                    dispatch({ type: "setUser", payload: user });
-                    setAbly(token, user);
-                }
-            } catch (err) {
-                console.error("Error fetching user:", err);
-            } finally {
+            if (!success || !data) {
                 setLoading(false);
+                return;
             }
+
+            const { user, token } = data
+
+            dispatch({ type: "setUser", payload: user });
+
+            if (user && token) {
+                dispatch({ type: "setUser", payload: user });
+                setAbly(token, user);
+            }
+            
+            setLoading(false);
         }
 
         function setAbly(token: any, user: UserPopulated) {
@@ -183,7 +100,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                 authCallback: async (tokenParams, callback) => {
                     try {
                         const newToken = await getAblyTokenAction();
-                        callback(null, newToken);
+                        callback(null, newToken.data);
                     } catch (error: any) {
                         callback(error, null);
                     }
@@ -194,6 +111,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
             channel.subscribe("message", (msg) => {
                 dispatch({ type: "addMessage", payload: msg.data });
+            });
+
+            channel.subscribe("chat", (msg) => {
+                dispatch({ type: "addChat", payload: msg.data });
             });
 
             return () => client.close();

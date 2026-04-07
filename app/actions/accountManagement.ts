@@ -1,55 +1,30 @@
 "use server"
 
-import { ValidatedActionWithAuth } from "../util/Middleware"
 import prisma from "@/lib/prisma"
-import { bioSchema, privacySchema, usernameSchema } from "@/lib/requestSchemas"
-import { FollowStatus, Privacy } from "../generated/prisma/enums";
-import z from "zod";
 import { User } from "../generated/prisma/client";
+import { processMedia } from "../util/Cloudinary";
+import { editProfileSchema } from "@/lib/requestSchemas";
+import z from "zod";
+import { populatedUserIncludes } from "./helpers";
+import { ValidatedActionWithAuth } from "../util/Middleware";
 
-export async function changeUsernameAction(username: string) {
-    return ValidatedActionWithAuth(usernameSchema, { username }, changeUsername);
-};
-
-export async function changeBioAction(bio: string) {
-    return ValidatedActionWithAuth(bioSchema, { bio }, changeBio);
-};
-
-export async function changePrivacyStatusAction(privacy: Privacy) {
-    return ValidatedActionWithAuth(privacySchema, { privacy }, changePrivacyStatus);
-};
-
-async function changeBio(user : User, args: z.infer<typeof bioSchema>) {
-    await prisma.user.update({
-        where: { id: user.id },
-        data: { bio: args.bio }
-    })
+export async function editProfileAction(args: z.infer<typeof editProfileSchema>) {
+    return await ValidatedActionWithAuth(editProfileSchema, args, editProfile);
 }
 
-async function changePrivacyStatus(user: User, args: z.infer<typeof privacySchema>) {
-    if(args.privacy === Privacy.PUBLIC){
-        await prisma.follow.updateMany({
-            where : {
-                followingId : user.id,
-                status : FollowStatus.PENDING
-            },
-            data : {
-                status : FollowStatus.ACCEPTED
-            }
-        })
-    } 
+async function editProfile(user: User, args: z.infer<typeof editProfileSchema>) {
+    const image = args.image ? (await processMedia(args.image)).url : user.image;
 
-    await prisma.user.update({
-        where: { id: user.id },
-        data: { privacy: args.privacy }
-    });
-}
-
-async function changeUsername(user: User, args: z.infer<typeof usernameSchema>) {
-    const name = args.username;
-
-    await prisma.user.update({
-        where: { id: user.id },
-        data: { name }
+    return await prisma.user.update({
+        where: {
+            id: user.id
+        },
+        data: {
+            name: args.name,
+            bio: args.bio,
+            image: image,
+            privacy: args.privacy
+        },
+        include: populatedUserIncludes
     });
 }

@@ -17,6 +17,7 @@ import MediaAttacher from "./MediaAttacher";
 import Message from "./Message";
 import MediaPreviewList from "./MediaPreviewList";
 import { Chat } from "@/app/types";
+import { toast } from "sonner";
 
 type MediaFile = {
     file: File;
@@ -79,28 +80,31 @@ export default function ChatView({
             return;
         }
 
-        try {
-            const message = await createmessageAction(
-                text,
-                media.map((m) => m.file),
-                chat.id
-            );
+        const { success, data } = await createmessageAction(
+            text,
+            media.map((m) => m.file),
+            chat.id
+        );
 
-            dispatch({ type: "addMessage", payload: message });
+        if (success)
+            dispatch({ type: "addMessage", payload: data! });
+        else
+            toast.error("Failed to send message");
 
-            setText("");
-            setMedia([]);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setSending(false);
-        }
+        setText("");
+        setMedia([]);
+
+        setSending(false);
     }
 
     useEffect(() => {
         async function fetchMessages() {
-            const messages = await getMessagesForChatAction(chat.id);
-            dispatch({ type: "setMessages", payload: messages });
+            const { success, data } = await getMessagesForChatAction(chat.id);
+            
+            if (success)
+                dispatch({ type: "setMessages", payload: data || [] });
+            else
+                toast.error("Failed to load messages");
         }
 
         fetchMessages();

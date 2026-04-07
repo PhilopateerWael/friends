@@ -4,28 +4,50 @@ import {
     Dialog,
     DialogContent,
     DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 
 import { ScrollArea } from "./ui/scroll-area";
 import UserRow from "./UserRow";
 import { Button } from "@/components/ui/button";
 import { UserPopulated } from "@/app/types";
+import { useState } from "react";
+import { useAppContext } from "@/app/Providers";
+import { unblockAction } from "@/app/actions/users";
 
-export default function BlockedUsersModal({
-    open,
-    onClose,
-    blocks,
-    onUnblock,
-    actionLoading,
-}: {
-    open: boolean;
-    onClose: () => void;
-    blocks: UserPopulated["blocks"];
-    onUnblock: (blockedId: string) => void;
-    actionLoading: boolean;
-}) {
+export default function BlockedUsersModal() {
+    const [loadingId, setLoadingId] = useState<string | null>(null);
+    const { state, dispatch } = useAppContext();
+    const blocks = state.user?.blocks || [];
+
+    const handleUnblock = async (blockedId: string) => {
+        setLoadingId(blockedId);
+        try {
+            const { success } = await unblockAction(blockedId);
+
+            if (success) {
+                dispatch({
+                    type: "setUser",
+                    payload: {
+                        ...state.user!,
+                        blocks: state.user!.blocks.filter(b => b.blockedId !== blockedId)
+                    }
+                })
+            }
+
+        } finally {
+            setLoadingId(null);
+        }
+    };
+
     return (
-        <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button variant="destructive" className="flex-1">
+                    Blocked Users
+                </Button>
+            </DialogTrigger>
+
             <DialogContent className="max-w-md h-[70vh] flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
 
                 <DialogTitle className="px-6 pt-4 shrink-0">
@@ -43,9 +65,9 @@ export default function BlockedUsersModal({
                                         <Button
                                             size="sm"
                                             variant="destructive"
-                                            onClick={() => onUnblock(b.blockedId)}
+                                            onClick={() => handleUnblock(b.blockedId)}
                                             className="cursor-pointer"
-                                            disabled={actionLoading}
+                                            disabled={loadingId === b.blockedId}
                                         >
                                             Unblock
                                         </Button>

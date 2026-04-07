@@ -4,27 +4,30 @@ import {
     Dialog,
     DialogContent,
     DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 
 import { ScrollArea } from "./ui/scroll-area";
 import UserRow from "./UserRow";
-import { ProfileUser } from "@/app/types";
+import { User } from "@/app/generated/prisma/browser";
+import { ReactNode } from "react";
 
 export default function UsersListModal({
-    open,
-    onClose,
     title,
     users,
+    children,
 }: {
-    open: boolean;
-    onClose: () => void;
     title: string;
-    users: ProfileUser["followers"][0]["follower"][];
+    users: User[];
+    children: ReactNode;
 }) {
     return (
-        <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-            <DialogContent className="max-w-md h-[70vh] flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
+        <Dialog>
+            <DialogTrigger asChild>
+                {children}
+            </DialogTrigger>
 
+            <DialogContent className="max-w-md h-[70vh] flex flex-col p-0 max-sm:h-screen max-sm:rounded-none max-md:max-w-screen">
                 <DialogTitle className="px-6 pt-4 shrink-0">
                     {title}
                 </DialogTitle>

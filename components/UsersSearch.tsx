@@ -28,7 +28,7 @@ const UsersSearch = ({ action, isAbsolute, actionLoading }: { action: (user: Use
 
         const timeout = setTimeout(async () => {
             const result = await searchUsersAction(q)
-            setResults(result)
+            setResults(result.data || [])
             setLoading(false)
         }, 500)
 
