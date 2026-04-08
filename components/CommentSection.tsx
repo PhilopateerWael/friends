@@ -92,9 +92,12 @@ export default function CommentSection({
             }
         >
             {comments.length ?
-                comments.map((comment) => (
-                    <CommentComponent key={comment.id} comment={comment} />
-                )) : (
+                <div className="space-y-4">
+                    {comments.map((comment) => (
+                        <CommentComponent key={comment.id} comment={comment} />
+                    ))}
+                </div> :
+                (
                     <p className="text-muted-foreground text-center">
                         No comments yet
                     </p>
