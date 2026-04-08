@@ -9,7 +9,7 @@ export async function processMedia(file: File): Promise<{ url: string, type: Med
 
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-            { folder: "friends" },
+            { folder: "friends", resource_type: "auto" },
             (err, result) => {
                 if (err) return reject(err);
                 resolve({

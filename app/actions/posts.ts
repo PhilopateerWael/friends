@@ -30,26 +30,21 @@ export async function getFeedAction() {
 }
 
 async function createPost(user: User, args: z.infer<typeof postSchema>) {
-    try {
-        let uploadedMedia: { url: string; type: MediaType }[] = [];
+    let uploadedMedia: { url: string; type: MediaType }[] = [];
 
-        if (args?.media?.length > 0) {
-            uploadedMedia = await Promise.all(args.media.map(processMedia));
-        }
-
-        const post = await prisma.post.create({
-            data: {
-                content: args.content,
-                authorId: user.id,
-                media: uploadedMedia ? { create: uploadedMedia } : undefined
-            }, include: postIncludes
-        });
-
-        return post;
-    } catch (error) {
-        console.error("Create post failed:", error);
-        return null;
+    if (args?.media?.length > 0) {
+        uploadedMedia = await Promise.all(args.media.map(processMedia));
     }
+
+    const post = await prisma.post.create({
+        data: {
+            content: args.content,
+            authorId: user.id,
+            media: uploadedMedia ? { create: uploadedMedia } : undefined
+        }, include: postIncludes
+    });
+
+    return post;
 }
 
 async function deletePost(user: User, args: z.infer<typeof targetSchema>) {

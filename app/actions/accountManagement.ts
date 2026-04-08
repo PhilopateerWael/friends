@@ -16,15 +16,10 @@ async function editProfile(user: User, args: z.infer<typeof editProfileSchema>) 
     let image = user.image;
 
     if (args.image) {
-        try {
-            const result = await processMedia(args.image);
-            image = result.url;
-        } catch (error) {
-            console.error("Error processing media:", error);
-            throw new Error("Failed to upload image");
-        }
+        const result = await processMedia(args.image);
+        image = result.url;
     }
-    
+
     return await prisma.user.update({
         where: {
             id: user.id

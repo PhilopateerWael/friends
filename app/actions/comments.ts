@@ -20,31 +20,26 @@ export async function getCommentsForPostAction(postId: string) {
 }
 
 async function createComment(user: User, args: z.infer<typeof commentSchema>) {
-    try {
-        const post = await prisma.post.findFirst({
-            where: { ...canAccessPost(user), id: args.postId }
-        });
+    const post = await prisma.post.findFirst({
+        where: { ...canAccessPost(user), id: args.postId }
+    });
 
-        if (!post) {
-            throw new Error("Post not found");
-        }
-
-        const comment = await prisma.comment.create({
-            data: {
-                content: args.content,
-                postId: args.postId,
-                authorId: user.id,
-            },
-            include: {
-                author: true
-            }
-        });
-
-        return comment;
-    } catch (error) {
-        console.error("Create comment failed:", error);
-        throw new Error("Failed to create comment");
+    if (!post) {
+        throw new Error("Post not found");
     }
+
+    const comment = await prisma.comment.create({
+        data: {
+            content: args.content,
+            postId: args.postId,
+            authorId: user.id,
+        },
+        include: {
+            author: true
+        }
+    });
+
+    return comment;
 }
 
 async function deleteComment(user: User, args: z.infer<typeof targetSchema>) {

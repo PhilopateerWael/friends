@@ -22,22 +22,19 @@ export default function BlockedUsersModal() {
 
     const handleUnblock = async (blockedId: string) => {
         setLoadingId(blockedId);
-        try {
-            const { success } = await unblockAction(blockedId);
+        const { success } = await unblockAction(blockedId);
 
-            if (success) {
-                dispatch({
-                    type: "setUser",
-                    payload: {
-                        ...state.user!,
-                        blocks: state.user!.blocks.filter(b => b.blockedId !== blockedId)
-                    }
-                })
-            }
-
-        } finally {
-            setLoadingId(null);
+        if (success) {
+            dispatch({
+                type: "setUser",
+                payload: {
+                    ...state.user!,
+                    blocks: state.user!.blocks.filter(b => b.blockedId !== blockedId)
+                }
+            })
         }
+
+        setLoadingId(null);
     };
 
     return (

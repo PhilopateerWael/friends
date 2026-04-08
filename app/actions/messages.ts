@@ -22,69 +22,65 @@ export async function getMessagesForChatAction(targetId: string) {
 }
 
 async function createmessage(user: User, args: z.infer<typeof messageSchema>) {
-    try {
-        let chat;
+    let chat;
 
-        chat = await prisma.chat.findUnique({
-            where: {
-                id: args.chatId,
-            },
-            include: {
-                participants: true
-            }
-        });
-
-
-        if (!chat) {
-            throw new Error("Chat not found");
+    chat = await prisma.chat.findUnique({
+        where: {
+            id: args.chatId,
+        },
+        include: {
+            participants: true
         }
+    });
 
-        const otherUser = chat.participants.find((p) => p.userId !== user.id);
 
-        const targetUser = await prisma.user.findUnique({
-            where: {
-                id: otherUser?.userId,
-                blocks: { none: { blockedId: user.id } },
-                blockedBy: { none: { userId: user.id } }
-            },
-        });
-
-        if (!targetUser || targetUser.id === user.id) {
-            throw new Error("User not found");
-        }
-
-        if (!chat.participants.some(p => p.userId === user.id)) {
-            throw new Error("User not part of the chat");
-        }
-
-        if (!otherUser) {
-            throw new Error("I dont think we can reach this case but like typescript is making me paranoid");
-        }
-
-        let uploadedMedia: { url: string; type: MediaType }[] = [];
-
-        if (args?.media?.length > 0) {
-            uploadedMedia = await Promise.all(args.media.map(processMedia));
-        }
-
-        const message = await prisma.message.create({
-            data: {
-                content: args.content,
-                senderId: user.id,
-                chatId: chat.id,
-                media: uploadedMedia ? { create: uploadedMedia } : undefined
-            },
-            include: messageIncludes
-        });
-
-        const channel = ably.channels.get(`user-${otherUser.userId}`);
-
-        await channel.publish("message", message);
-
-        return message;
-    } catch (error) {
-        throw new Error("Failed to create message");
+    if (!chat) {
+        throw new Error("Chat not found");
     }
+
+    const otherUser = chat.participants.find((p) => p.userId !== user.id);
+
+    const targetUser = await prisma.user.findUnique({
+        where: {
+            id: otherUser?.userId,
+            blocks: { none: { blockedId: user.id } },
+            blockedBy: { none: { userId: user.id } }
+        },
+    });
+
+    if (!targetUser || targetUser.id === user.id) {
+        throw new Error("User not found");
+    }
+
+    if (!chat.participants.some(p => p.userId === user.id)) {
+        throw new Error("User not part of the chat");
+    }
+
+    if (!otherUser) {
+        throw new Error("I dont think we can reach this case but like typescript is making me paranoid");
+    }
+
+    let uploadedMedia: { url: string; type: MediaType }[] = [];
+
+    if (args?.media?.length > 0) {
+        uploadedMedia = await Promise.all(args.media.map(processMedia));
+    }
+
+    const message = await prisma.message.create({
+        data: {
+            content: args.content,
+            senderId: user.id,
+            chatId: chat.id,
+            media: uploadedMedia ? { create: uploadedMedia } : undefined
+        },
+        include: messageIncludes
+    });
+
+    const channel = ably.channels.get(`user-${otherUser.userId}`);
+
+    await channel.publish("message", message);
+
+    return message;
 }
 
 async function createChat(user: User, args: z.infer<typeof targetSchema>) {
