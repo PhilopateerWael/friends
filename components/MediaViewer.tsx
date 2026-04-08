@@ -29,7 +29,7 @@ const MediaViewer = ({ media, setOpen }: { media: Media[]; setOpen: (open: boole
                     <ChevronLeft />
                 </button>
 
-                <div className="flex-1 flex justify-center items-center overflow-hidden h-screen">
+                <div className="flex-1 flex justify-center items-center overflow-hidden h-dvh">
                     {media[index].type === "IMAGE" ? (
                         <img
                             src={media[index].url}

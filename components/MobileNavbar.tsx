@@ -12,7 +12,7 @@ export default function MobileNavbar() {
     const { state } = useAppContext()
 
     return (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-dvh">
             <nav className="fixed bottom-0 left-0 right-0 md:hidden border-t bg-background flex justify-around p-2">
                 {navItems.map((item) => (
                     <Button

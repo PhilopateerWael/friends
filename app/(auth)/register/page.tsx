@@ -47,7 +47,7 @@ export default function page() {
     }
 
     return (
-        <div className="w-screen h-screen flex justify-center items-center">
+        <div className="w-screen h-dvh flex justify-center items-center">
             <Card className="w-full sm:max-w-md max-sm:border-0 max-sm:shadow-none">
                 <CardHeader>
                     <CardTitle>Sign up</CardTitle>

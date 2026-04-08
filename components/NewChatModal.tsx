@@ -45,7 +45,7 @@ export default function NewChatModal({ open, onClose }: any) {
 
     return (
         <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-            <DialogContent className="h-[70vh] max-h-fit flex flex-col p-0 pb-6">
+            <DialogContent className="h-[70dvh] max-h-fit flex flex-col p-0 pb-6">
 
                 <div className="px-6 pt-4 space-y-1">
                     <DialogTitle>New Chat</DialogTitle>

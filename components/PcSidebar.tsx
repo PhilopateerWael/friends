@@ -13,7 +13,7 @@ export default function PcSidebar() {
     const { state } = useAppContext()
 
     return (
-        <div className="flex h-screen sticky top-0">
+        <div className="flex h-dvh sticky top-0">
             <aside className="hidden md:flex flex-col w-20 border-r items-center justify-center py-6 gap-4">
                 {navItems.map((item) => (
                     <Button

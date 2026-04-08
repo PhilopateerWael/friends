@@ -27,7 +27,7 @@ export default function UsersListModal({
                 {children}
             </DialogTrigger>
 
-            <DialogContent className="h-[70vh] flex flex-col p-0 pb-6">
+            <DialogContent className="h-[70dvh] flex flex-col p-0 pb-6">
                 <DialogTitle className="px-6 pt-4 shrink-0">
                     {title}
                 </DialogTitle>

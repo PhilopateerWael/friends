@@ -82,7 +82,7 @@ export default function EditProfileModal() {
             </DialogTrigger>
 
             <DialogContent className="h-fit flex flex-col p-0 max-h-full">
-                <ScrollArea className="max-h-fit h-[70vh] pb-4">
+                <ScrollArea className="max-h-fit h-[70dvh] pb-4">
 
                     <DialogTitle className="px-6 pt-4 shrink-0">Settings</DialogTitle>
 

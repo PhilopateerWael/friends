@@ -70,7 +70,7 @@ export default function CommentSection({
                     <span className="text-sm">{comments.length}</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="h-[70vh] flex flex-col p-0">
+            <DialogContent className="h-[70dvh] flex flex-col p-0">
 
                 <DialogTitle className="px-6 pt-4 shrink-0">
                     Comments
