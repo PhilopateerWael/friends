@@ -22,8 +22,8 @@ export default function ProfileActions({
 
     const isOwnProfile = state.user?.id === user.id;
     const isBlocked = state.user?.blocks.some(b => b.blockedId === state.user?.id);
-    const isFollowing = state.user?.following.some(f => f.followerId === state.user?.id && f.status === "ACCEPTED");
-    const isPending = state.user?.following.some(f => f.followerId=== state.user?.id && f.status === "PENDING");
+    const isFollowing = state.user?.following.some(f => f.followingId === user.id && f.status === "ACCEPTED");
+    const isPending = state.user?.following.some(f => f.followerId=== user.id && f.status === "PENDING");
 
     const [followLoading, setFollowLoading] = useState(false);
     const [blockLoading, setBlockLoading] = useState(false);
