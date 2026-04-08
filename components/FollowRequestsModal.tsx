@@ -1,19 +1,12 @@
 "use client";
 
-import {
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
-
-import { ScrollArea } from "./ui/scroll-area";
 import UserRow from "./UserRow";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAppContext } from "@/app/Providers";
 import { acceptFollowRequestAction, rejectFollowRequestAction } from "@/app/actions/users";
 import { toast } from "sonner";
+import GeneralModal from "./GeneralModal";
 
 export default function FollowRequestsModal() {
 
@@ -66,61 +59,50 @@ export default function FollowRequestsModal() {
 
         setLoadingId(null);
     };
-
     return (
-        <Dialog>
-            <DialogTrigger asChild>
-                {state.user?.privacy === "PRIVATE" && (
-                    <Button className="flex-1 cursor-pointer">
-                        Follow Requests
-                    </Button>
-                )}
-            </DialogTrigger>
-
-            <DialogContent className="h-[70dvh] flex flex-col p-0 pb-6">
-
-                <DialogTitle className="px-6 pt-4 shrink-0">
+        <GeneralModal
+            title="Follow Requests"
+            trigger={
+                <Button className="flex-1 cursor-pointer">
                     Follow Requests
-                </DialogTitle>
-
-                <ScrollArea className="flex-1 min-h-0 px-6">
-                    <div className="space-y-4">
-                        {users.length ? (
-                            users.map((user) => (
-                                <UserRow
-                                    key={user.id}
-                                    user={user}
-                                    action={
-                                        <div className="flex gap-2">
-                                            <Button
-                                                size="sm"
-                                                onClick={() => handleAccept(user.id)}
-                                                className="cursor-pointer"
-                                                disabled={loadingId === user.id}
-                                            >
-                                                Accept
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => handleReject(user.id)}
-                                                className="cursor-pointer"
-                                                disabled={loadingId === user.id}
-                                            >
-                                                Reject
-                                            </Button>
-                                        </div>
-                                    }
-                                />
-                            ))
-                        ) : (
-                            <p className="text-muted-foreground text-center">
-                                No requests
-                            </p>
-                        )}
-                    </div>
-                </ScrollArea>
-            </DialogContent>
-        </Dialog>
-    );
+                </Button>
+            }
+        >
+            <div className="space-y-4">
+                {users.length ? (
+                    users.map((user) => (
+                        <UserRow
+                            key={user.id}
+                            user={user}
+                            action={
+                                <div className="flex gap-2">
+                                    <Button
+                                        size="sm"
+                                        onClick={() => handleAccept(user.id)}
+                                        className="cursor-pointer"
+                                        disabled={loadingId === user.id}
+                                    >
+                                        Accept
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleReject(user.id)}
+                                        className="cursor-pointer"
+                                        disabled={loadingId === user.id}
+                                    >
+                                        Reject
+                                    </Button>
+                                </div>
+                            }
+                        />
+                    ))
+                ) : (
+                    <p className="text-muted-foreground text-center">
+                        No requests
+                    </p>
+                )}
+            </div>
+        </GeneralModal>
+    )
 }

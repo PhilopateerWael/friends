@@ -1,16 +1,9 @@
 "use client";
 
-import {
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
-
-import { ScrollArea } from "./ui/scroll-area";
 import UserRow from "./UserRow";
 import { User } from "@/app/generated/prisma/browser";
 import { ReactNode } from "react";
+import GeneralModal from "./GeneralModal";
 
 export default function UsersListModal({
     title,
@@ -22,32 +15,21 @@ export default function UsersListModal({
     children: ReactNode;
 }) {
     return (
-        <Dialog>
-            <DialogTrigger asChild>
-                {children}
-            </DialogTrigger>
-
-            <DialogContent className="h-[70dvh] flex flex-col p-0 pb-6">
-                <DialogTitle className="px-6 pt-4 shrink-0">
-                    {title}
-                </DialogTitle>
-
-                <ScrollArea className="flex-1 min-h-0 px-6">
-                    <div className="space-y-4">
-                        {users.length ? (
-                            users.map((u) => (
-                                <>
-                                    <UserRow key={u.id} user={u} />
-                                </>
-                            ))
-                        ) : (
-                            <p className="text-muted-foreground text-center">
-                                Empty
-                            </p>
-                        )}
-                    </div>
-                </ScrollArea>
-            </DialogContent>
-        </Dialog>
-    );
+        <GeneralModal
+            title={title}
+            trigger={children}
+        >
+            <div className="space-y-4">
+                {users.length ? (
+                    users.map((u) => (
+                        <UserRow key={u.id} user={u} />
+                    ))
+                ) : (
+                    <p className="text-muted-foreground text-center">
+                        Empty
+                    </p>
+                )}
+            </div>
+        </GeneralModal>
+    )
 }

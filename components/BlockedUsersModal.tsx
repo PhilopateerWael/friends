@@ -1,19 +1,11 @@
 "use client";
 
-import {
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
-
-import { ScrollArea } from "./ui/scroll-area";
 import UserRow from "./UserRow";
 import { Button } from "@/components/ui/button";
-import { UserPopulated } from "@/app/types";
 import { useState } from "react";
 import { useAppContext } from "@/app/Providers";
 import { unblockAction } from "@/app/actions/users";
+import GeneralModal from "./GeneralModal";
 
 export default function BlockedUsersModal() {
     const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -36,48 +28,40 @@ export default function BlockedUsersModal() {
 
         setLoadingId(null);
     };
-
     return (
-        <Dialog>
-            <DialogTrigger asChild>
+        <GeneralModal
+            title="Blocked Users"
+            trigger={
                 <Button variant="destructive" className="flex-1 cursor-pointer">
                     Blocked Users
                 </Button>
-            </DialogTrigger>
-
-            <DialogContent className="h-[70dvh] flex flex-col p-0 pb-6">
-                <DialogTitle className="px-6 pt-4 shrink-0">
-                    Blocked Users
-                </DialogTitle>
-
-                <ScrollArea className="flex-1 min-h-0 px-6">
-                    <div className="space-y-4">
-                        {blocks.length ? (
-                            blocks.map((b) => (
-                                <UserRow
-                                    key={b.id}
-                                    user={b.blocked}
-                                    action={
-                                        <Button
-                                            size="sm"
-                                            variant="destructive"
-                                            onClick={() => handleUnblock(b.blockedId)}
-                                            className="cursor-pointer"
-                                            disabled={loadingId === b.blockedId}
-                                        >
-                                            Unblock
-                                        </Button>
-                                    }
-                                />
-                            ))
-                        ) : (
-                            <p className="text-muted-foreground text-center">
-                                No blocked users
-                            </p>
-                        )}
-                    </div>
-                </ScrollArea>
-            </DialogContent>
-        </Dialog>
-    );
+            }
+        >
+            <div className="space-y-4">
+                {blocks.length ? (
+                    blocks.map((b) => (
+                        <UserRow
+                            key={b.id}
+                            user={b.blocked}
+                            action={
+                                <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleUnblock(b.blockedId)}
+                                    className="cursor-pointer"
+                                    disabled={loadingId === b.blockedId}
+                                >
+                                    Unblock
+                                </Button>
+                            }
+                        />
+                    ))
+                ) : (
+                    <p className="text-muted-foreground text-center">
+                        No blocked users
+                    </p>
+                )}
+            </div>
+        </GeneralModal>
+    )
 }

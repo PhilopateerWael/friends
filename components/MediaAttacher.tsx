@@ -4,7 +4,7 @@ import { Paperclip } from 'lucide-react'
 
 const MediaAttacher = ({ handleMediaChange, children }: { handleMediaChange: React.ChangeEventHandler<HTMLInputElement>, children?: React.ReactNode }) => {
     return (
-        <Button variant="secondary" className="mt-2 relative cursor-pointer overflow-hidden">
+        <Button variant="secondary" className="relative cursor-pointer overflow-hidden">
             {children}<Paperclip />
             <input
                 type="file"

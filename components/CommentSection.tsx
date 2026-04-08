@@ -1,16 +1,12 @@
 import { createCommentAction, getCommentsForPostAction } from "@/app/actions/comments"
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog"
 import { useEffect, useState } from "react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { MessageCircle } from "lucide-react"
-import { formatDistanceToNow } from "date-fns"
-import { ScrollArea } from "./ui/scroll-area"
 import { toast } from "sonner"
-import { redirect } from "next/navigation"
 import type { Comment } from "@/app/types"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { CommentComponent } from "./CommentComponent"
+import GeneralModal from "./GeneralModal"
 export default function CommentSection({
     postId,
 }: {
@@ -59,8 +55,8 @@ export default function CommentSection({
     }
 
     return (
-        <Dialog >
-            <DialogTrigger asChild>
+        <GeneralModal title="Comments"
+            trigger={
                 <Button
                     variant="ghost"
                     size="sm"
@@ -69,22 +65,9 @@ export default function CommentSection({
                     <MessageCircle className="w-5 h-5" />
                     <span className="text-sm">{comments.length}</span>
                 </Button>
-            </DialogTrigger>
-            <DialogContent className="h-[70dvh] flex flex-col p-0">
-
-                <DialogTitle className="px-6 pt-4 shrink-0">
-                    Comments
-                </DialogTitle>
-
-                <ScrollArea className="flex-1 min-h-0 px-6">
-                    <div className="space-y-4">
-                        {comments.map((comment) => (
-                            <CommentComponent key={comment.id} comment={comment} />
-                        ))}
-                    </div>
-                </ScrollArea>
-
-                <div className="border-t py-2 px-4 flex gap-2 shrink-0">
+            }
+            footer={
+                <div className="flex gap-2 shrink-0">
                     <Input
                         placeholder="Write a comment..."
                         value={text}
@@ -95,6 +78,7 @@ export default function CommentSection({
                                 submit();
                             }
                         }}
+                        className="flex-1 rounded-full bg-muted border-0 px-4 text-sm focus-visible:ring-1"
                     />
 
                     <Button
@@ -105,9 +89,16 @@ export default function CommentSection({
                         Post
                     </Button>
                 </div>
-
-            </DialogContent>
-        </Dialog>
+            }
+        >
+            {comments.length ?
+                comments.map((comment) => (
+                    <CommentComponent key={comment.id} comment={comment} />
+                )) : (
+                    <p className="text-muted-foreground text-center">
+                        No comments yet
+                    </p>
+                )}
+        </GeneralModal>
     )
 }
-

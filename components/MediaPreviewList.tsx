@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { Button } from "./ui/button";
 
 type MediaFile = {
     file: File;
@@ -33,13 +34,14 @@ export default function MediaPreviewList({
                         />
                     )}
 
-                    <button
+                    <Button
+                        className="absolute top-0 right-0 cursor-pointer rounded-full flex items-center justify-center"
+                        variant={"secondary"}
                         onClick={() => onRemove(idx)}
-                        className="absolute top-0 right-0 bg-red-500 text-white p-1 cursor-pointer rounded-full flex items-center justify-center"
-                        type="button"
+                        size={"icon-sm"}
                     >
                         <X size={12} />
-                    </button>
+                    </Button>
                 </div>
             ))}
         </div>

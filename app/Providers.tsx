@@ -4,6 +4,10 @@ import * as Ably from "ably";
 import { createContext, useReducer, Dispatch, useContext, useEffect, useState } from "react";
 import { getMeAction, getAblyTokenAction } from "./actions/auth";
 import { Chat, Message, UserPopulated } from "./types";
+import MobileNavbar from "@/components/MobileNavbar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import PcSidebar from "@/components/PcSidebar";
+import PostSkeletons from "@/components/PostSkeletons";
 
 
 type State = {
@@ -141,7 +145,19 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     }, []);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <>
+                <div className="flex w-screen max-md:flex-col">
+                    <PcSidebar />
+                    <ScrollArea className="h-dvh w-full max-md:h-[calc(100dvh-4rem)]">
+                        <div className="flex flex-col px-3 py-6 gap-4 items-center">
+                            <PostSkeletons />
+                        </div>
+                    </ScrollArea>
+                    <MobileNavbar />
+                </div>
+            </>
+        )
     }
 
     return (

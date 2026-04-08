@@ -10,14 +10,13 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-import { ArrowLeft, X } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import MediaAttacher from "./MediaAttacher";
 import Message from "./Message";
 import MediaPreviewList from "./MediaPreviewList";
 import { Chat } from "@/app/types";
 import { toast } from "sonner";
+import { ArrowLeft, Send } from "lucide-react";
 
 type MediaFile = {
     file: File;
@@ -46,7 +45,6 @@ export default function ChatView({
 
     const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
-
         const filesArray = Array.from(e.target.files)
             .filter(
                 (file) =>
@@ -57,7 +55,6 @@ export default function ChatView({
                 file,
                 preview: URL.createObjectURL(file),
             }));
-
         e.target.value = "";
         setMedia((prev) => [...prev, ...filesArray]);
     };
@@ -68,12 +65,10 @@ export default function ChatView({
 
     async function sendMessage() {
         if (!text.trim() && media.length === 0) return;
-
         setSending(true);
 
         const MAX_TOTAL = 10 * 1024 * 1024;
         const totalSize = media.reduce((acc, m) => acc + m.file.size, 0);
-
         if (totalSize > MAX_TOTAL) {
             alert("Media too large (max 10MB)");
             setSending(false);
@@ -86,32 +81,22 @@ export default function ChatView({
             chat.id
         );
 
-        if (success)
-            dispatch({ type: "addMessage", payload: data! });
-        else
-            toast.error("Failed to send message");
+        if (success) dispatch({ type: "addMessage", payload: data! });
+        else toast.error("Failed to send message");
 
         setText("");
         setMedia([]);
-
         setSending(false);
     }
 
     useEffect(() => {
         async function fetchMessages() {
             const { success, data } = await getMessagesForChatAction(chat.id);
-            
-            if (success)
-                dispatch({ type: "setMessages", payload: data || [] });
-            else
-                toast.error("Failed to load messages");
+            if (success) dispatch({ type: "setMessages", payload: data || [] });
+            else toast.error("Failed to load messages");
         }
-
         fetchMessages();
-
-        return () => {
-            dispatch({ type: "clearMessages" });
-        };
+        return () => { dispatch({ type: "clearMessages" }); };
     }, [chat.id]);
 
     useEffect(() => {
@@ -119,25 +104,35 @@ export default function ChatView({
     }, [messages]);
 
     return (
-        <div className="max-w-2xl mx-auto max-md:px-2 max-md:pt-3 p-4 flex flex-col max-md:h-[calc(100dvh-4rem)] h-dvh max-md:pb-2">
-            <div className="flex items-center gap-3 mb-4">
-                <Button variant="ghost" size="icon" onClick={onBack}>
-                    <ArrowLeft />
+        <div className="flex flex-col max-w-2xl mx-auto h-dvh max-md:h-[calc(100dvh-4rem)]">
+
+            <div className="flex items-center gap-3 px-3 py-2.5 border-b shrink-0">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onBack}
+                    className="shrink-0 text-muted-foreground hover:text-foreground"
+                >
+                    <ArrowLeft className="size-5" />
                 </Button>
 
-                <Avatar>
+                <Avatar className="size-9 shrink-0">
                     <AvatarImage src={otherUser?.image} />
-                    <AvatarFallback>
+                    <AvatarFallback className="text-sm font-medium">
                         {otherUser?.name?.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                 </Avatar>
 
-                <div className="font-medium">{otherUser?.name}</div>
+                <div className="min-w-0">
+                    <p className="font-medium text-sm leading-tight truncate">
+                        {otherUser?.name}
+                    </p>
+                </div>
             </div>
 
-            <div className="flex-1 mb-4 overflow-hidden">
-                <ScrollArea className="h-full px-3">
-                    <div className="gap-2 flex flex-col">
+            <div className="flex-1 min-h-0">
+                <ScrollArea className="h-full">
+                    <div className="flex flex-col gap-1 px-3 py-4">
                         {messages.map((msg, i) => (
                             <Message
                                 key={i}
@@ -150,14 +145,14 @@ export default function ChatView({
                 </ScrollArea>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="shrink-0 border-t px-3 py-2.5 flex flex-col gap-2">
                 <MediaPreviewList media={media} onRemove={handleRemoveMedia} />
 
-                <div className="flex gap-2 items-end">
+                <div className="flex items-end gap-2">
                     <MediaAttacher handleMediaChange={handleMediaChange} />
 
                     <Input
-                        placeholder="Type a message..."
+                        placeholder="Message..."
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={(e) => {
@@ -166,14 +161,16 @@ export default function ChatView({
                                 sendMessage();
                             }
                         }}
+                        className="flex-1 rounded-full bg-muted border-0 px-4 text-sm focus-visible:ring-1"
                     />
 
                     <Button
                         onClick={sendMessage}
-                        disabled={sending}
-                        className="min-w-[70px]"
+                        disabled={sending || (!text.trim() && media.length === 0)}
+                        size="icon"
+                        className="rounded-full shrink-0 size-9 cursor-pointer"
                     >
-                        Send
+                        <Send className="size-4" />
                     </Button>
                 </div>
             </div>

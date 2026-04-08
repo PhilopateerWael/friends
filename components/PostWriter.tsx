@@ -64,34 +64,33 @@ export default function PostWriter({ setFeed }: { setFeed: React.Dispatch<React.
         } else {
             toast.error("Failed to create post.");
         }
-        
+
         setLoading(false);
     };
 
     return (
         <Card className="w-full max-w-2xl mx-auto">
             <CardHeader>
-                <CardTitle>Create a Post</CardTitle>
+                <CardTitle>Write a Post</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent>
                 <Textarea
                     placeholder="What's on your mind?"
                     value={text}
                     onChange={e => setText(e.target.value)}
                     className="resize-none"
                 />
-
-                <div className="flex flex-col">
-                    <div className="flex gap-2 flex-wrap">
-                        <MediaPreviewList media={media} onRemove={handleRemoveMedia} />
-                    </div>
-                    <MediaAttacher handleMediaChange={handleMediaChange}>Attach Media</MediaAttacher>
-                </div>
             </CardContent>
-            <CardFooter>
-                <Button onClick={handleSubmit} disabled={(!text && media.length === 0) || loading} className="cursor-pointer w-full">
-                    {loading ? <Spinner /> : "Post"}
-                </Button>
+            <CardFooter className="flex flex-col w-full gap-2">
+                <div className="flex gap-2 flex-wrap w-full">
+                    <MediaPreviewList media={media} onRemove={handleRemoveMedia} />
+                </div>
+                <div className="flex w-full items-center gap-2 justify-center">
+                    <MediaAttacher handleMediaChange={handleMediaChange} />
+                    <Button onClick={handleSubmit} disabled={(!text && media.length === 0) || loading} className="cursor-pointer flex-1">
+                        {loading ? <Spinner /> : "Post"}
+                    </Button>
+                </div>
             </CardFooter>
         </Card>
     );

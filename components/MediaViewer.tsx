@@ -1,6 +1,7 @@
 import { Media } from '@/app/generated/prisma/client'
-import { ChevronLeft, ChevronRight , X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useState } from 'react'
+import { Button } from './ui/button';
 
 const MediaViewer = ({ media, setOpen }: { media: Media[]; setOpen: (open: boolean) => void; }) => {
     const [index, setIndex] = useState(0);
@@ -15,19 +16,22 @@ const MediaViewer = ({ media, setOpen }: { media: Media[]; setOpen: (open: boole
 
             <div className="relative w-full h-full flex items-center justify-center gap-2 p-4">
 
-                <button
+                <Button
+                    variant={"outline"}
                     onClick={() => setOpen(false)}
                     className="absolute top-4 right-4 text-white bg-muted p-3 rounded-full z-50 cursor-pointer flex items-center justify-center"
                 >
-                    <X size={20}/>
-                </button>
+                    <X size={20} />
+                </Button>
 
-                <button
+                <Button
                     onClick={() => setIndex((index - 1 + media.length) % media.length)}
                     className="text-white bg-muted p-3 rounded-full z-50 cursor-pointer"
+                    disabled={media.length <= 1}
+                    variant={"outline"}
                 >
                     <ChevronLeft />
-                </button>
+                </Button>
 
                 <div className="flex-1 flex justify-center items-center overflow-hidden h-dvh">
                     {media[index].type === "IMAGE" ? (
@@ -46,12 +50,14 @@ const MediaViewer = ({ media, setOpen }: { media: Media[]; setOpen: (open: boole
                     )}
                 </div>
 
-                <button
+                <Button
                     onClick={() => setIndex((index + 1) % media.length)}
                     className="text-white bg-muted p-3 rounded-full z-50 cursor-pointer"
+                    disabled={media.length <= 1}
+                    variant={"outline"}
                 >
                     <ChevronRight />
-                </button>
+                </Button>
             </div>
         </div>
     )
