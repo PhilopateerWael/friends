@@ -119,7 +119,7 @@ export default function ChatView({
     }, [messages]);
 
     return (
-        <div className="max-w-2xl mx-auto max-md:px-2 max-md:pt-3 max-md:pb-0 p-4 flex flex-col max-md:h-[calc(100vh-4rem)] h-dvh">
+        <div className="max-w-2xl mx-auto max-md:px-2 max-md:pt-3 p-4 flex flex-col max-md:h-[calc(100dvh-4rem)] h-dvh max-md:pb-2">
             <div className="flex items-center gap-3 mb-4">
                 <Button variant="ghost" size="icon" onClick={onBack}>
                     <ArrowLeft />

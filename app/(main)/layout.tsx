@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import PcSidebar from "@/components/PcSidebar"
 import MobileNavbar from "@/components/MobileNavbar"
 import Providers from "../Providers"
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 
 export const metadata: Metadata = {
     title: "Friends",
@@ -15,15 +17,17 @@ export default function RootLayout({
 }) {
 
     return (
-        <div className="flex">
+        <div className="flex h-dvh">
             <Providers>
-                <PcSidebar />
-
-                <main className="flex-1 max-md:h-[calc(100vh-4rem)]">
-                    {children}
-                </main>
-
-                <MobileNavbar />
+                <div className="flex w-screen max-md:flex-col">
+                    <PcSidebar />
+                    <ScrollArea className="h-dvh w-full max-md:h-[calc(100dvh-4rem)]">
+                        <main>
+                            {children}
+                        </main>
+                    </ScrollArea>
+                    <MobileNavbar />
+                </div>
             </Providers>
         </div>
     )

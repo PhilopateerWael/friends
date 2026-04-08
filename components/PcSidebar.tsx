@@ -13,35 +13,33 @@ export default function PcSidebar() {
     const { state } = useAppContext()
 
     return (
-        <div className="flex h-dvh sticky top-0">
-            <aside className="hidden md:flex flex-col w-20 border-r items-center justify-center py-6 gap-4">
-                {navItems.map((item) => (
-                    <Button
-                        key={item.href}
-                        variant="ghost"
-                        size="icon"
-                        asChild
-                        className={
-                            `${pathname === item.href && "bg-muted"}`
-                        }
-                    >
-                        <Link href={item.href == "/profile" ? `/user/${state?.user?.id}` : item.href}>
-                            {item.href == "/profile" ? (
-                                <Avatar
-                                    className="w-8 h-8 cursor-pointer"
-                                >
-                                    <AvatarImage src={state?.user?.image} />
-                                    <AvatarFallback>
-                                        {state?.user?.name?.[0]}
-                                    </AvatarFallback>
-                                </Avatar>
-                            ) : (
-                                <item.icon className="h-6 w-6" />
-                            )}
-                        </Link>
-                    </Button>
-                ))}
-            </aside>
-        </div>
+        <aside className="hidden md:flex flex-col h-dvh sticky top-0 w-20 border-r items-center justify-center py-6 gap-4">
+            {navItems.map((item) => (
+                <Button
+                    key={item.href}
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                    className={
+                        `${pathname === item.href && "bg-muted"}`
+                    }
+                >
+                    <Link href={item.href == "/profile" ? `/user/${state?.user?.id}` : item.href}>
+                        {item.href == "/profile" ? (
+                            <Avatar
+                                className="w-8 h-8 cursor-pointer"
+                            >
+                                <AvatarImage src={state?.user?.image} />
+                                <AvatarFallback>
+                                    {state?.user?.name?.[0]}
+                                </AvatarFallback>
+                            </Avatar>
+                        ) : (
+                            <item.icon className="h-6 w-6" />
+                        )}
+                    </Link>
+                </Button>
+            ))}
+        </aside>
     )
 }

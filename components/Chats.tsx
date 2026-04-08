@@ -68,7 +68,7 @@ export default function ChatList() {
             </div>
 
             <Button
-                className="fixed bottom-16 right-6 rounded-full shadow-lg cursor-pointer"
+                className="fixed max-md:bottom-18 bottom-12 right-6 rounded-full shadow-lg cursor-pointer"
                 size="icon"
                 onClick={() => setOpenNewChat(true)}
             >
