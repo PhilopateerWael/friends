@@ -22,7 +22,7 @@ const imageSchema = z
     .refine((file) => file.type.startsWith("image/") , "Must be an image");
 
 export const postSchema = z.object({
-    content: z.string().max(1000),
+    content: z.string().max(4000),
     media: z.array(fileSchema),
 });
 
@@ -31,7 +31,7 @@ export const targetSchema = z.object({
 });
 
 export const commentSchema = z.object({
-    content: z.string().min(1).max(1000),
+    content: z.string().min(1).max(4000),
     postId: z.string(),
 });
 
