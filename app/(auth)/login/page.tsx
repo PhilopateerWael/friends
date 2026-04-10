@@ -111,9 +111,9 @@ export default function page() {
                         >
                             {isSubmitting ? <Spinner /> : "Submit"}
                         </Button>
-                        <Button variant="link" asChild>
-                            <Link href="/register">Don’t have an account? Register</Link>
-                        </Button>
+                        <Button variant="ghost" nativeButton={false} render={
+                            <Link href="/register">Don't have an account? Register</Link>
+                        }/>
                     </Field>
                 </CardFooter>
             </Card>

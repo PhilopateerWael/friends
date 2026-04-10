@@ -133,7 +133,7 @@ export default function EditProfileModal() {
                     </select>
 
                     <div className="border-t flex gap-3 shrink-0">
-                        <DialogClose asChild>
+                        <DialogClose nativeButton={false} render={
                             <Button
                                 onClick={handleSave}
                                 className="flex-1 cursor-pointer"
@@ -141,17 +141,15 @@ export default function EditProfileModal() {
                             >
                                 Save
                             </Button>
-                        </DialogClose>
+                        }/>
 
-                        <DialogClose asChild>
-                            <Button
+                        <DialogClose nativeButton={false} render={<Button
                                 variant="outline"
                                 className="flex-1 cursor-pointer"
                                 disabled={isLoading}
                             >
                                 Cancel
-                            </Button>
-                        </DialogClose>
+                            </Button>}/>
                     </div>
                 </TabsContent>
 

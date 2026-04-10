@@ -17,13 +17,10 @@ export default function MobileNavbar() {
                 <Button
                     key={item.href}
                     variant="ghost"
+                    nativeButton={false}
                     size="icon"
-                    asChild
-                    className={
-                        `${pathname === item.href && "text-primary"}`
-                    }
-                >
-                    <Link href={item.href == "/profile" ? `/user/${state?.user?.id}` : item.href}>
+                    render={
+                        <Link href={item.href == "/profile" ? `/user/${state?.user?.id}` : item.href}>
                         {item.href == "/profile" ? (
                             <Avatar
                                 className="w-8 h-8 cursor-pointer"
@@ -37,7 +34,11 @@ export default function MobileNavbar() {
                             <item.icon className="h-6 w-6" />
                         )}
                     </Link>
-                </Button>
+                    }
+                    className={
+                        `${pathname === item.href && "text-primary"}`
+                    }
+                />
             ))}
         </nav>
     )
