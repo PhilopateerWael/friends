@@ -24,9 +24,11 @@ function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
 
 function DialogOverlay({
   className,
-  variant="opaque",
+  variant = "opaque",
   ...props
-}: DialogPrimitive.Backdrop.Props & {variant?: "opaque" | "blur" | "transparent"}) {
+}: DialogPrimitive.Backdrop.Props & {
+  variant?: "opaque" | "blur" | "transparent";
+}) {
   return (
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
@@ -43,12 +45,12 @@ function DialogOverlay({
 function DialogContent({
   className,
   children,
-  overlayVariant="opaque",
+  overlayVariant = "opaque",
   showCloseButton = true,
   ...props
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean;
-  overlayVariant?: "opaque" | "blur" | "transparent"
+  overlayVariant?: "opaque" | "blur" | "transparent";
 }) {
   return (
     <DialogPortal>
@@ -69,7 +71,7 @@ function DialogContent({
               <Button
                 variant="tertiary"
                 className="absolute top-4 end-4"
-                size="icon-sm"
+                size="icon-xs"
               />
             }
           >
@@ -104,14 +106,14 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse max-sm:**:w-full gap-2 sm:flex-row sm:justify-end",
         className,
       )}
       {...props}
     >
       {children}
       {showCloseButton && (
-        <DialogPrimitive.Close render={<Button variant="outline" />}>
+        <DialogPrimitive.Close data-slot="close-button" render={<Button variant="outline" />}>
           Close
         </DialogPrimitive.Close>
       )}
