@@ -2,7 +2,7 @@
 
 import UserRow from "./UserRow";
 import { User } from "@/app/generated/prisma/browser";
-import { ReactNode } from "react";
+import { ReactElement } from "react";
 import GeneralModal from "./GeneralModal";
 
 export default function UsersListModal({
@@ -12,7 +12,7 @@ export default function UsersListModal({
 }: {
     title: string;
     users: User[];
-    children: ReactNode;
+    children: ReactElement;
 }) {
     return (
         <GeneralModal
