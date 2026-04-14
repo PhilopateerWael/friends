@@ -67,6 +67,7 @@ export default function page() {
                                         </FieldLabel>
                                         <Input
                                             {...field}
+                                            variant="secondary"
                                             id={field.name}
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Enter your email"
@@ -87,6 +88,7 @@ export default function page() {
                                         </FieldLabel>
                                         <Input
                                             {...field}
+                                            variant="secondary"
                                             id={field.name}
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Enter your password"

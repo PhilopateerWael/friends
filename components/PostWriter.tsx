@@ -76,6 +76,7 @@ export default function PostWriter({ setFeed }: { setFeed: React.Dispatch<React.
             <CardContent>
                 <Textarea
                     placeholder="What's on your mind?"
+                    variant="secondary"
                     value={text}
                     onChange={e => setText(e.target.value)}
                     className="resize-none"
