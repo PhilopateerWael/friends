@@ -8,6 +8,7 @@ import { User } from "@/app/generated/prisma/client"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Button } from "./ui/button"
 import { ScrollArea } from "./ui/scroll-area"
+import { InputGroup, InputGroupAddon, InputGroupInput } from "./ui/input-group"
 
 const UsersSearch = ({ action, isAbsolute, actionLoading }: { action: (user: User) => void, isAbsolute?: boolean, actionLoading: boolean }) => {
     const [query, setQuery] = useState("")
@@ -39,22 +40,22 @@ const UsersSearch = ({ action, isAbsolute, actionLoading }: { action: (user: Use
 
     return (
         <div className="flex w-full max-w-2xl flex-col gap-2 relative">
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-
-                <Input
+                <InputGroup>
+                <InputGroupInput
                     placeholder="Search users..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setTimeout(() => setFocused(false), 150)}
-                    className="pl-9"
                 />
-            </div>
+        <InputGroupAddon align="inline-start">
+                <Search className="size-4 text-muted-foreground" />
+        </InputGroupAddon>
+      </InputGroup>
 
             {(focused || !isAbsolute) && (
                 <div className={`flex absolute w-full z-10 ${isAbsolute ? 'absolute translate-y-10' : 'relative'}`}>
-                    <ScrollArea className="absolute w-full bg-popover rounded-md shadow-lg p-2 max-h-64 border">
+                    <ScrollArea className="absolute w-full bg-surface rounded-md shadow-lg p-2 max-h-64 border">
                         <div className="flex flex-col gap-2">
                             {
                                 q === "" && (
