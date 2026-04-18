@@ -13,7 +13,7 @@ export default function GeneralModal({ title, children, trigger, footer }: { tit
 
     return (
         <Dialog>
-            <DialogTrigger nativeButton={false} render={trigger}/>
+            <DialogTrigger render={trigger}/>
 
             <DialogContent className="flex flex-col">
                 <DialogTitle>{title}</DialogTitle>

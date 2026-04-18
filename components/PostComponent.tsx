@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { formatDistanceToNow } from "date-fns";
 import { useEffect, useState } from "react";
+import { Button as ButtonPrimitive } from "@base-ui/react";
 import MediaGrid from "./MediaGrid";
 import CommentSection from "./CommentSection";
 import { redirect } from "next/navigation";
@@ -37,7 +38,7 @@ export default function PostComponent({ post }: Props) {
     const user = state.user as User;
     const [likes, setLikes] = useState(post.likes);
     const [isLiking, setIsLiking] = useState(false);
-    const isLiked = likes.some((l) => l.user.id === user.id);
+    const isLiked = likes.some((l) => l.user.id === user?.id);
 
     async function handleLike() {
         if (isLiking) return;
@@ -47,7 +48,7 @@ export default function PostComponent({ post }: Props) {
         if (isLiked) {
             const { success } = await unlikePostAction(post.id);
             if (success)
-                setLikes((prev) => prev.filter((l) => l.user.id !== user.id));
+                setLikes((prev) => prev.filter((l) => l.user.id !== user?.id));
             else
                 toast.error("Failed to unlike post.");
         } else {
@@ -117,9 +118,9 @@ export default function PostComponent({ post }: Props) {
                         </AvatarGroup>
 
                         <UsersListModal users={likes.map((like) => like.user)} title="Likes">
-                            <span className="text-xs text-muted-foreground hover:underline cursor-pointer">
+                            <ButtonPrimitive className="text-xs text-muted-foreground hover:underline cursor-pointer">
                                 {likes.length} like{likes.length > 1 && "s"}
-                            </span>
+                            </ButtonPrimitive>
                         </UsersListModal>
                     </div>
                 )}
