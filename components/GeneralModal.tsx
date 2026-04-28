@@ -9,13 +9,11 @@ import {
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export default function GeneralModal({ title, children, trigger, footer }: { title: string, children: React.ReactNode, trigger: React.ReactNode, footer?: React.ReactNode }) {
+export default function GeneralModal({ title, children, trigger, footer }: { title: string, children: React.ReactNode, trigger: React.ReactElement, footer?: React.ReactNode }) {
 
     return (
         <Dialog>
-            <DialogTrigger asChild>
-                {trigger}
-            </DialogTrigger>
+            <DialogTrigger render={trigger}/>
 
             <DialogContent className="flex flex-col">
                 <DialogTitle>{title}</DialogTitle>

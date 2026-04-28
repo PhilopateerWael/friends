@@ -68,6 +68,7 @@ export default function page() {
                                         </FieldLabel>
                                         <Input
                                             {...field}
+                                            variant="secondary"
                                             id={field.name}
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Enter your name"
@@ -88,6 +89,7 @@ export default function page() {
                                         </FieldLabel>
                                         <Input
                                             {...field}
+                                            variant="secondary"
                                             id={field.name}
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Enter your email"
@@ -108,6 +110,7 @@ export default function page() {
                                         </FieldLabel>
                                         <Input
                                             {...field}
+                                            variant="secondary"
                                             id={field.name}
                                             aria-invalid={fieldState.invalid}
                                             placeholder="Enter your password"
@@ -132,9 +135,12 @@ export default function page() {
                         >
                             {isSubmitting ? <Spinner />: "Submit"}
                         </Button>
-                        <Button variant="link" asChild>
+                        <Button variant="ghost" 
+                        nativeButton={false}
+                        render={
                             <Link href="/login">Already have an account? Sign in</Link>
-                        </Button>
+                        }
+                        />
                     </Field>
                 </CardFooter>
             </Card>

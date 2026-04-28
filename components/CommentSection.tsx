@@ -70,6 +70,7 @@ export default function CommentSection({
                 <div className="flex gap-2 shrink-0">
                     <Input
                         placeholder="Write a comment..."
+                        variant="secondary"
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={(e) => {
@@ -78,7 +79,7 @@ export default function CommentSection({
                                 submit();
                             }
                         }}
-                        className="flex-1 rounded-full bg-muted border-0 px-4 text-sm focus-visible:ring-1"
+                        className="rounded-full"
                     />
 
                     <Button
