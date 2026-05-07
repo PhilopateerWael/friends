@@ -36,8 +36,9 @@ export async function ValidatedAction<T extends z.ZodTypeAny, R>(schema: T, inpu
 
 export async function ValidatedActionWithAuth<T extends z.ZodTypeAny, R>(schema: T, input: z.infer<T>, action: (user: User, args: z.infer<T>) => Promise<R>): Promise<{ success: boolean; data: R | null }> {
     const parsed = schema.safeParse(input);
-
+    
     if (!parsed.success) {
+        console.error("Validation failed:", parsed.error);
         return {
             success: false,
             data: null

@@ -14,24 +14,24 @@ import PostSkeletons from "@/components/PostSkeletons";
 export default function Home() {
     const { state } = useAppContext();
     const [feed, setFeed] = useState<Post[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const fetchPosts = async () => {
-            const { success, data } = await getFeedAction()
+    // useEffect(() => {
+    //     const fetchPosts = async () => {
+    //         // const { success, data } = await getFeedAction()
 
-            setLoading(false)
+    //         // setLoading(false)
 
-            if (success) {
-                setFeed(data!);
-            } else {
-                setFeed([]);
-                toast.error("Failed to fetch feed");
-            }
-        }
+    //         // if (success) {
+    //         //     setFeed(data!);
+    //         // } else {
+    //         //     setFeed([]);
+    //         //     toast.error("Failed to fetch feed");
+    //         // }
+    //     }
 
-        fetchPosts();
-    }, [])
+    //     fetchPosts();
+    // }, [])
 
     return (
         <div className="flex flex-col px-3 py-6 gap-4 items-center">

@@ -13,12 +13,12 @@ export const signInSchema = signUpSchema.omit({ name: true });
 
 const fileSchema = z
     .instanceof(File)
-    .refine((file) => file.size <= 5_000_000, "Max 5MB")
+    .refine((file) => file.size <= 10_000_000, "Max 10MB")
     .refine((file) => file.type.startsWith("image/") || file.type.startsWith("video/"), "Must be an image or video");
 
 const imageSchema = z
     .instanceof(File)
-    .refine((file) => file.size <= 5_000_000, "Max 5MB")
+    .refine((file) => file.size <= 10_000_000, "Max 10MB")
     .refine((file) => file.type.startsWith("image/") , "Must be an image");
 
 export const postSchema = z.object({
