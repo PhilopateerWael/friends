@@ -18,6 +18,7 @@ export default function Home() {
 
     useEffect(() => {
         const fetchPosts = async () => {
+            if (loading == false || !state.user) return;
             const { success, data } = await getFeedAction()
 
             setLoading(false)

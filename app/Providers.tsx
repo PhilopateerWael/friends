@@ -105,8 +105,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
             const { user, token } = data
 
-            dispatch({ type: "setUser", payload: user });
-
             if (user && token) {
                 dispatch({ type: "setUser", payload: user });
                 setAbly(token, user);

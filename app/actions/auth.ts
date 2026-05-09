@@ -55,7 +55,7 @@ async function getMe(user: User): Promise<{ user: UserPopulated | null; token: T
             [`user-${user.id}`]: ["subscribe"],
         }
     })
-
+    console.log("--------------------------------AUTH DONE------------------------------------")
     return { user: userPopulated, token };
 }
 
