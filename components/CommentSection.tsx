@@ -1,5 +1,5 @@
-import { createCommentAction, getCommentsForPostAction } from "@/app/actions/comments"
-import { useEffect, useState } from "react"
+import { createCommentAction } from "@/app/actions/comments"
+import { useState } from "react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { MessageCircle } from "lucide-react"
@@ -9,25 +9,14 @@ import { CommentComponent } from "./CommentComponent"
 import GeneralModal from "./GeneralModal"
 export default function CommentSection({
     postId,
+    commentsData
 }: {
+    commentsData: Comment[];
     postId: string;
 }) {
-    const [comments, setComments] = useState<Comment[]>([])
+    const [comments, setComments] = useState<Comment[]>(commentsData || [])
     const [text, setText] = useState("")
     const [loading, setLoading] = useState(false)
-
-    useEffect(() => {
-        async function fetchComments() {
-            const { success, data } = await getCommentsForPostAction(postId);
-
-            if (success)
-                setComments(data!);
-            else
-                toast.error("Failed to load comments");
-        }
-
-        fetchComments()
-    }, [])
 
     async function submit() {
         if (!text.trim()) return

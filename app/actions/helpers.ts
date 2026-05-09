@@ -77,6 +77,11 @@ export const postIncludes = {
         include: {
             user: true
         }
+    },
+    comments : {
+        include: {
+            author : true
+        }
     }
 }
 

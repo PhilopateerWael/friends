@@ -144,6 +144,7 @@ export default function PostComponent({ post }: Props) {
                     </Button>
 
                     <CommentSection
+                        commentsData={post.comments}
                         postId={post.id}
                     />
                 </div>

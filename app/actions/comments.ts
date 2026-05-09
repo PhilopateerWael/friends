@@ -15,10 +15,6 @@ export async function deleteCommentAction(commentId: string) {
     return ValidatedActionWithAuth(targetSchema, { targetId: commentId }, deleteComment);
 }
 
-export async function getCommentsForPostAction(postId: string) {
-    return ValidatedActionWithAuth(targetSchema, { targetId: postId }, getCommentsForPost);
-}
-
 async function createComment(user: User, args: z.infer<typeof commentSchema>) {
     const post = await prisma.post.findFirst({
         where: { ...canAccessPost(user), id: args.postId }
@@ -49,31 +45,4 @@ async function deleteComment(user: User, args: z.infer<typeof targetSchema>) {
             authorId: user.id
         }
     });
-}
-
-async function getCommentsForPost(user: User, args: z.infer<typeof targetSchema>) {
-    const postId = args.targetId
-
-    const post = await prisma.post.findFirst({
-        where: { ...canAccessPost(user), id: args.targetId }
-    });
-
-    if (!post) {
-        throw new Error("Post not found");
-    }
-
-    const comments = await prisma.comment.findMany({
-        where: {
-            postId,
-            ...canAccessPost(user)
-        },
-        include: {
-            author: true
-        }
-        , orderBy: {
-            createdAt: "desc"
-        }
-    })
-
-    return comments;
 }
